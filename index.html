@@ -19,7 +19,7 @@
     .brand h1{margin:0;font-size:20px;line-height:1.15;}.brand p{margin:2px 0 0;font-size:13px;color:var(--muted);}
     .info,.confirm,.subscription,.browser-box,.platforms,.steps{display:flex;gap:10px;padding:14px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);margin-top:12px;flex-direction:column;}
     .info strong,.confirm-title,.sub-title,.browser-title,.platforms h3,.steps h3{display:block;margin-bottom:4px;font-size:14px;font-weight:700;}
-    .info span,.confirm-text,.browser-text,.steps li,.platforms p{font-size:13px;color:var(--muted);line-height:1.45;}
+    .info span,.confirm-text,.browser-text,.steps li,.platforms li{font-size:13px;color:var(--muted);line-height:1.45;}
     .actions{display:grid;gap:10px;margin-top:16px;}
     .btn{width:100%;border:0;outline:none;border-radius:999px;padding:14px 16px;font-size:15px;font-weight:700;color:white;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:10px;transition:transform .15s ease, opacity .15s ease, box-shadow .15s ease;user-select:none;text-decoration:none;}
     .btn:active{transform:scale(.985);}
@@ -29,14 +29,14 @@
     .confirm,.subscription,.browser-box{display:none;}
     .confirm.show,.subscription.show,.browser-box.show{display:flex;animation:fade .18s ease;}
     .confirm-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}
-    .sub-link{font-size:13px;color:#7dd3fc;word-break:break-all;line-height:1.45;margin-bottom:12px;white-space:normal;}
+    .sub-link{font-size:13px;color:#7dd3fc;word-break:break-all;line-height:1.45;margin-bottom:12px;white-space:normal;text-decoration:none;}
     .qr-wrap{display:grid;place-items:center;padding:12px;border-radius:16px;background:#fff;}
     .qr-wrap img{width:220px;height:220px;display:block;}
     .footer{margin-top:14px;font-size:12px;color:var(--muted);text-align:center;min-height:18px;}
     .status-ok{color:var(--success);}.status-warn{color:#fbbf24;}.status-bad{color:var(--danger);}
     .hint{margin-top:14px;font-size:12px;color:var(--muted);text-align:center;}
     .steps ol,.platforms ul{margin:0;padding-left:18px;}
-    .platforms li,.steps li{font-size:13px;color:var(--muted);line-height:1.45;margin-bottom:8px;}
+    .platforms li,.steps li{margin-bottom:8px;}
     .meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
     .meta-box{padding:10px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);}
     .meta-label{font-size:11px;color:#94a3b8;margin-bottom:4px;}.meta-value{font-size:13px;color:#f8fafc;word-break:break-word;}
@@ -47,7 +47,7 @@
 <body>
   <div class="shell"><div class="card"><div class="glow"></div>
     <div class="brand"><div class="logo">⚡</div><div><h1>Aurora Tunnel</h1><p>Создание и выдача подписки прямо здесь</p></div></div>
-    <div id="browserBox" class="browser-box"><div class="browser-title">Открой в Telegram</div><div class="browser-text">Этот сайт открыт в обычном браузере. Создание ключа и показ данных работают только внутри Telegram Mini App.</div></div>
+    <div id="browserBox" class="browser-box"><div class="browser-title">Открой в Telegram</div><div class="browser-text">Этот сайт открыт в обычном браузере. Кнопки создания и смены ключа работают внутри Telegram Mini App.</div></div>
     <div class="info"><strong>Один пользователь — один ключ</strong><span>Новый ключ создаётся только после подтверждения. Карточка подписки показывается прямо здесь.</span></div>
     <div class="actions">
       <button class="btn btn-primary" onclick="createKey()"><span>⚡</span><span>Создать ключ</span></button>
@@ -68,7 +68,7 @@
     </div>
     <div class="platforms"><h3>Настройка по платформам</h3><ul><li><b>Android:</b> установи клиент и импортируй подписку через ссылку или QR.</li><li><b>iPhone:</b> добавь подписку через ссылку или QR в клиенте.</li><li><b>ПК:</b> импортируй подписку через URL.</li></ul></div>
     <div class="steps"><h3>Как подключить</h3><ol><li>Нажми <b>Создать ключ</b>.</li><li>Карточка с линком и QR появятся здесь и в чате.</li><li>Нажми <b>Отправить в бота</b>, если хочешь повторно получить данные.</li><li>Вставь ссылку в клиент или отсканируй QR.</li></ol></div>
-    <div id="status" class="footer">Mini app готов.</div><div class="hint">В браузере кнопки создания и отправки не сработают.</div>
+    <div id="status" class="footer">Mini app готов.</div><div class="hint">В браузере можно видеть предпросмотр, но отправка в бота работает только в Telegram.</div>
   </div></div>
   <script>
     const tg = window.Telegram?.WebApp;
@@ -84,15 +84,14 @@
     const metaStatus = document.getElementById('metaStatus');
     const metaEmail = document.getElementById('metaEmail');
     let currentData = null;
-    const demo = {subscription_url:'https://example.com/subscription',country:'RU',expire_days:30,status:'active',email:'tg_demo@example.com'};
     function setStatus(text, type=''){statusEl.className='footer'+(type?` status-${type}`:'');statusEl.textContent=text||'';}
     function renderSubscription(data){if(!data||!data.subscription_url)return;currentData=data;metaCountry.textContent=data.country||'RU';metaExpire.textContent=data.expire_days?`${data.expire_days} дней`:'—';metaStatus.textContent=data.status||'active';metaEmail.textContent=data.email||'—';subLink.textContent=data.subscription_url;subLink.href=data.subscription_url;qrImg.src='https://api.qrserver.com/v1/create-qr-code/?size=220x220&data='+encodeURIComponent(data.subscription_url);subscriptionBox.classList.add('show');setStatus('Данные загружены','ok');}
-    function createKey(){if(!isTg){browserBox.classList.add('show');setStatus('Открой страницу в Telegram','bad');renderSubscription(demo);return;}setStatus('Создаю ключ...','warn');tg.sendData(JSON.stringify({action:'create_key'}));}
+    function createKey(){if(!isTg){browserBox.classList.add('show');setStatus('Открой страницу в Telegram','bad');return;}setStatus('Создаю ключ...','warn');tg.sendData(JSON.stringify({action:'create_key'}));}
     function showConfirm(){if(!isTg){browserBox.classList.add('show');setStatus('Смена ключа доступна только внутри Telegram','bad');return;}confirmBox.classList.add('show');setStatus('Подтверждение готово','warn');}
     function hideConfirm(){confirmBox.classList.remove('show');setStatus('Отмена смены ключа','ok');}
     function confirmReset(){confirmBox.classList.remove('show');if(!isTg)return;tg.sendData(JSON.stringify({action:'reset_key'}));setStatus('Запрос на смену ключа отправлен','ok');}
     function sendToBot(){if(!currentData?.subscription_url){setStatus('Сначала создай ключ','bad');return;}if(!isTg){setStatus('Открой страницу в Telegram','bad');return;}tg.sendData(JSON.stringify({action:'send_to_bot',...currentData}));setStatus('Данные отправлены в бота','ok');}
-    if(isTg){tg.ready();tg.expand();renderSubscription(demo);setStatus('Telegram Mini App готов','ok');}else{browserBox.classList.add('show');renderSubscription(demo);setStatus('Режим предпросмотра без Telegram','warn');}
+    if(isTg){tg.ready();tg.expand();setStatus('Telegram Mini App готов','ok');}else{browserBox.classList.add('show');setStatus('Режим предпросмотра без Telegram','warn');}
   </script>
 </body>
 </html>
