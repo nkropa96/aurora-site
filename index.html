@@ -22,9 +22,9 @@
     .logo{width:46px;height:46px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--primary-1),var(--primary-2));box-shadow:0 10px 24px rgba(168,85,247,.28);font-size:22px}
     .brand h1{margin:0;font-size:20px;line-height:1.15}
     .brand p{margin:2px 0 0;font-size:13px;color:var(--muted)}
-    .info,.confirm,.subscription{display:flex;gap:10px;padding:14px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);margin-top:12px;flex-direction:column}
-    .info strong,.confirm-title,.sub-title{display:block;margin-bottom:4px;font-size:14px;font-weight:700}
-    .info span,.confirm-text{font-size:13px;color:var(--muted);line-height:1.45}
+    .info,.confirm,.subscription,.steps{display:flex;gap:10px;padding:14px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);margin-top:12px;flex-direction:column}
+    .info strong,.confirm-title,.sub-title,.steps h3{display:block;margin-bottom:4px;font-size:14px;font-weight:700}
+    .info span,.confirm-text,.steps li{font-size:13px;color:var(--muted);line-height:1.45}
     .actions{display:grid;gap:10px;margin-top:16px}
     .btn{width:100%;border:0;outline:none;border-radius:999px;padding:14px 16px;font-size:15px;font-weight:700;color:white;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:10px;transition:transform .15s ease,opacity .15s ease,box-shadow .15s ease;user-select:none}
     .btn:active{transform:scale(.985)}
@@ -40,10 +40,8 @@
     .footer{margin-top:14px;font-size:12px;color:var(--muted);text-align:center;min-height:18px}
     .status-ok{color:var(--success)} .status-warn{color:#fbbf24} .status-bad{color:var(--danger)}
     .hint{margin-top:14px;font-size:12px;color:var(--muted);text-align:center}
-    .steps{margin-top:12px;padding:14px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}
-    .steps h3{margin:0 0 8px;font-size:14px}
-    .steps ol{margin:0;padding-left:18px;color:var(--muted);font-size:13px;line-height:1.55}
-    .steps a{color:#7dd3fc;text-decoration:none}
+    ol{margin:0;padding-left:18px}
+    a{color:#7dd3fc;text-decoration:none}
     @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
   </style>
 </head>
@@ -67,7 +65,7 @@
 
       <div class="actions">
         <button class="btn btn-primary" onclick="issueVless()">
-          <span>⚡</span><span>Выдать подписку</span>
+          <span>⚡</span><span>Получить подписку</span>
         </button>
 
         <button class="btn btn-danger" onclick="showConfirm()">
@@ -97,11 +95,11 @@
       <div class="steps">
         <h3>Как подключить</h3>
         <ol>
-          <li>Нажми <b>Выдать подписку</b>.</li>
+          <li>Нажми <b>Получить подписку</b>.</li>
           <li>Скопируй ссылку или сканируй QR.</li>
-          <li>Установи <a href="https://apps.apple.com/" target="_blank" rel="noopener">Happ</a> или другой клиент.</li>
+          <li>Установи Happ из App Store или другой клиент.</li>
           <li>В приложении нажми <b>Добавить подписку</b> и вставь ссылку.</li>
-          <li>Если нужно заменить ключ, нажми <b>Сменить ключ</b> и подтверди.</li>
+          <li>Если нужен новый ключ — нажми <b>Сменить ключ</b> и подтверди.</li>
         </ol>
       </div>
 
