@@ -22,7 +22,6 @@
     }
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
     html, body {
       margin: 0;
       min-height: 100%;
@@ -33,7 +32,6 @@
       color: var(--text);
       font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
-
     body {
       min-height: 100vh;
       display: flex;
@@ -41,9 +39,7 @@
       justify-content: center;
       padding: 18px;
     }
-
     .shell { width: 100%; max-width: 430px; }
-
     .card {
       position: relative;
       overflow: hidden;
@@ -55,7 +51,6 @@
       -webkit-backdrop-filter: blur(18px);
       padding: 22px;
     }
-
     .glow {
       position: absolute;
       inset: auto auto -80px -60px;
@@ -65,14 +60,12 @@
       filter: blur(8px);
       pointer-events: none;
     }
-
     .brand {
       display: flex;
       align-items: center;
       gap: 12px;
       margin-bottom: 18px;
     }
-
     .logo {
       width: 46px;
       height: 46px;
@@ -83,48 +76,34 @@
       box-shadow: 0 10px 24px rgba(168, 85, 247, 0.28);
       font-size: 22px;
     }
-
     .brand h1 { margin: 0; font-size: 20px; line-height: 1.15; }
     .brand p { margin: 2px 0 0; font-size: 13px; color: var(--muted); }
-
-    .info {
+    .info, .confirm, .subscription {
       display: flex;
-      align-items: flex-start;
       gap: 10px;
       padding: 14px;
       border-radius: 18px;
       background: rgba(255, 255, 255, 0.04);
       border: 1px solid rgba(255, 255, 255, 0.06);
       margin-top: 12px;
+      flex-direction: column;
     }
-
-    .info .dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 999px;
-      margin-top: 5px;
-      background: linear-gradient(135deg, var(--primary-1), var(--primary-2));
-      flex: 0 0 auto;
-    }
-
-    .info strong {
+    .info strong, .confirm-title, .sub-title {
       display: block;
       margin-bottom: 4px;
       font-size: 14px;
+      font-weight: 700;
     }
-
-    .info span {
+    .info span, .confirm-text {
       font-size: 13px;
       color: var(--muted);
       line-height: 1.45;
     }
-
     .actions {
       display: grid;
       gap: 10px;
       margin-top: 16px;
     }
-
     .btn {
       width: 100%;
       border: 0;
@@ -142,25 +121,47 @@
       transition: transform .15s ease, opacity .15s ease, box-shadow .15s ease;
       user-select: none;
     }
-
     .btn:active { transform: scale(0.985); }
-
     .btn-primary {
       background: linear-gradient(135deg, var(--primary-1), var(--primary-2));
       box-shadow: 0 10px 24px rgba(56, 189, 248, 0.22);
     }
-
     .btn-secondary {
       background: rgba(255, 255, 255, 0.04);
       border: 1px solid rgba(255, 255, 255, 0.09);
       color: #e5e7eb;
     }
-
     .btn-danger {
       background: linear-gradient(135deg, #fb7185, #f97316);
       box-shadow: 0 10px 24px rgba(251, 113, 133, 0.20);
     }
-
+    .confirm, .subscription { display: none; }
+    .confirm.show, .subscription.show { display: flex; }
+    .confirm-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .sub-link {
+      font-size: 13px;
+      color: #7dd3fc;
+      word-break: break-all;
+      line-height: 1.45;
+      margin-bottom: 12px;
+    }
+    .qr-wrap {
+      display: grid;
+      place-items: center;
+      padding: 12px;
+      border-radius: 16px;
+      background: #fff;
+    }
+    .qr-wrap img {
+      width: 220px;
+      height: 220px;
+      display: block;
+    }
     .footer {
       margin-top: 14px;
       font-size: 12px;
@@ -168,53 +169,20 @@
       text-align: center;
       min-height: 18px;
     }
-
     .status-ok { color: var(--success); }
     .status-warn { color: #fbbf24; }
     .status-bad { color: var(--danger); }
-
     .hint {
       margin-top: 14px;
       font-size: 12px;
       color: var(--muted);
       text-align: center;
     }
-
-    .confirm {
-      display: none;
-      margin-top: 14px;
-      padding: 14px;
-      border-radius: 18px;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.05);
-      animation: fade .18s ease;
-    }
-
-    .confirm.show { display: block; }
-
-    .confirm-title {
-      font-size: 14px;
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-
-    .confirm-text {
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.5;
-      margin-bottom: 12px;
-    }
-
-    .confirm-actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-
     @keyframes fade {
       from { opacity: 0; transform: translateY(4px); }
       to { opacity: 1; transform: translateY(0); }
     }
+    .confirm.show, .subscription.show { animation: fade .18s ease; }
   </style>
 </head>
 <body>
@@ -231,11 +199,8 @@
       </div>
 
       <div class="info">
-        <div class="dot"></div>
-        <div>
-          <strong>Один пользователь — один ключ</strong>
-          <span>Если подписка уже есть, бот вернёт её. Новый ключ создаётся только после подтверждения.</span>
-        </div>
+        <strong>Один пользователь — один ключ</strong>
+        <span>Если подписка уже есть, бот вернёт её. Новый ключ создаётся только после подтверждения.</span>
       </div>
 
       <div class="actions">
@@ -258,15 +223,19 @@
       <div id="confirmBox" class="confirm">
         <div class="confirm-title">Сменить ключ?</div>
         <div class="confirm-text">
-          Старый ключ будет удалён, затем бот создаст новый и отправит тебе свежую подписку.
+          Старый ключ будет удалён, затем бот создаст новый и отправит свежую подписку.
         </div>
         <div class="confirm-actions">
-          <button class="btn btn-danger" onclick="confirmReset()">
-            Да, сменить
-          </button>
-          <button class="btn btn-secondary" onclick="hideConfirm()">
-            Отмена
-          </button>
+          <button class="btn btn-danger" onclick="confirmReset()">Да, сменить</button>
+          <button class="btn btn-secondary" onclick="hideConfirm()">Отмена</button>
+        </div>
+      </div>
+
+      <div id="subscriptionBox" class="subscription">
+        <div class="sub-title">Твоя подписка</div>
+        <div id="subLink" class="sub-link"></div>
+        <div class="qr-wrap">
+          <img id="qrImg" alt="QR code" />
         </div>
       </div>
 
@@ -282,6 +251,9 @@
 
     const statusEl = document.getElementById("status");
     const confirmBox = document.getElementById("confirmBox");
+    const subscriptionBox = document.getElementById("subscriptionBox");
+    const subLink = document.getElementById("subLink");
+    const qrImg = document.getElementById("qrImg");
 
     function setStatus(text, type = "") {
       if (!statusEl) return;
@@ -321,6 +293,13 @@
 
     function openSupport() {
       sendPayload({ action: "support" }, "Запрос поддержки отправлен");
+    }
+
+    function showSubscription(link) {
+      subLink.textContent = link;
+      qrImg.src = "https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=" + encodeURIComponent(link);
+      subscriptionBox.classList.add("show");
+      setStatus("Подписка отображена на сайте", "ok");
     }
   </script>
 </body>
