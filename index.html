@@ -1,188 +1,196 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="color-scheme" content="dark light" />
-  <title>Aurora Tunnel</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <style>
-    :root {
-      --bg:#050816; --card:rgba(10,15,35,.78); --card-border:rgba(255,255,255,.08);
-      --text:#f8fafc; --muted:#94a3b8; --primary-1:#38bdf8; --primary-2:#a855f7;
-      --danger:#fb7185; --success:#34d399; --shadow:0 20px 45px rgba(0,0,0,.45); --radius:24px;
-    }
-    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-    html,body{margin:0;min-height:100%;background:radial-gradient(circle at top,rgba(56,189,248,.20),transparent 28%),radial-gradient(circle at bottom right,rgba(168,85,247,.20),transparent 24%),var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-    body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:18px}
-    .shell{width:100%;max-width:430px}
-    .card{position:relative;overflow:hidden;background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);box-shadow:var(--shadow);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);padding:22px}
-    .glow{position:absolute;inset:auto auto -80px -60px;width:180px;height:180px;background:radial-gradient(circle,rgba(56,189,248,.28),transparent 68%);filter:blur(8px);pointer-events:none}
-    .brand{display:flex;align-items:center;gap:12px;margin-bottom:18px}
-    .logo{width:46px;height:46px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--primary-1),var(--primary-2));box-shadow:0 10px 24px rgba(168,85,247,.28);font-size:22px}
-    .brand h1{margin:0;font-size:20px;line-height:1.15}
-    .brand p{margin:2px 0 0;font-size:13px;color:var(--muted)}
-    .info,.confirm,.subscription,.steps{display:flex;gap:10px;padding:14px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);margin-top:12px;flex-direction:column}
-    .info strong,.confirm-title,.sub-title,.steps h3{display:block;margin-bottom:4px;font-size:14px;font-weight:700}
-    .info span,.confirm-text,.steps li{font-size:13px;color:var(--muted);line-height:1.45}
-    .actions{display:grid;gap:10px;margin-top:16px}
-    .btn{width:100%;border:0;outline:none;border-radius:999px;padding:14px 16px;font-size:15px;font-weight:700;color:white;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:10px;transition:transform .15s ease,opacity .15s ease,box-shadow .15s ease;user-select:none}
-    .btn:active{transform:scale(.985)}
-    .btn-primary{background:linear-gradient(135deg,var(--primary-1),var(--primary-2));box-shadow:0 10px 24px rgba(56,189,248,.22)}
-    .btn-secondary{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);color:#e5e7eb}
-    .btn-danger{background:linear-gradient(135deg,#fb7185,#f97316);box-shadow:0 10px 24px rgba(251,113,133,.20)}
-    .confirm,.subscription{display:none}
-    .confirm.show,.subscription.show{display:flex;animation:fade .18s ease}
-    .confirm-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
-    .sub-link{font-size:13px;color:#7dd3fc;word-break:break-all;line-height:1.45;margin-bottom:12px}
-    .qr-wrap{display:grid;place-items:center;padding:12px;border-radius:16px;background:#fff}
-    .qr-wrap img{width:220px;height:220px;display:block}
-    .footer{margin-top:14px;font-size:12px;color:var(--muted);text-align:center;min-height:18px}
-    .status-ok{color:var(--success)} .status-warn{color:#fbbf24} .status-bad{color:var(--danger)}
-    .hint{margin-top:14px;font-size:12px;color:var(--muted);text-align:center}
-    .steps ol{margin:0;padding-left:18px}
-    .steps a{color:#7dd3fc;text-decoration:none}
-    @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
-  </style>
-</head>
-<body>
-  <div class="shell">
-    <div class="card">
-      <div class="glow"></div>
+import asyncio
+import json
+import logging
+import os
+import sqlite3
+from io import BytesIO
+from uuid import uuid4
 
-      <div class="brand">
-        <div class="logo">⚡</div>
-        <div>
-          <h1>Aurora Tunnel</h1>
-          <p>Подписка для Happ и других клиентов</p>
-        </div>
-      </div>
+import py3xui
+import qrcode
+from aiogram import Bot, Dispatcher, F
+from aiogram.filters import CommandStart
+from aiogram.types import BufferedInputFile, KeyboardButton, Message, ReplyKeyboardMarkup, WebAppInfo
+from dotenv import load_dotenv
 
-      <div class="info">
-        <strong>Один пользователь — один ключ</strong>
-        <span>Если подписка уже есть, бот вернёт её. Новый ключ создаётся только после подтверждения.</span>
-      </div>
+load_dotenv()
 
-      <div class="actions">
-        <button class="btn btn-primary" onclick="issueVless()">
-          <span>⚡</span><span>Получить подписку</span>
-        </button>
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
+logger = logging.getLogger("bot")
 
-        <button class="btn btn-danger" onclick="showConfirm()">
-          <span>🗑️</span><span>Сменить ключ</span>
-        </button>
+BOT_TOKEN = os.getenv("BOT_TOKEN", "")
+BOT_MENU_TEXT = os.getenv("BOT_MENU_TEXT", "Открыть кабинет")
+WEBAPP_URL = os.getenv("WEBAPP_URL", "https://nkropa96.github.io/aurora-site/")
 
-        <button class="btn btn-secondary" onclick="openSupport()">
-          <span>💬</span><span>Поддержка</span>
-        </button>
-      </div>
+XUI_URL = os.getenv("XUI_URL", "")
+XUI_LOGIN = os.getenv("XUI_LOGIN", "")
+XUI_PASSWORD = os.getenv("XUI_PASSWORD", "")
+XUI_INBOUND_ID = int(os.getenv("XUI_INBOUND_ID", "1"))
 
-      <div id="confirmBox" class="confirm">
-        <div class="confirm-title">Сменить ключ?</div>
-        <div class="confirm-text">Старый ключ будет удалён, затем бот создаст новый и отправит свежую подписку.</div>
-        <div class="confirm-actions">
-          <button class="btn btn-danger" onclick="confirmReset()">Да, сменить</button>
-          <button class="btn btn-secondary" onclick="hideConfirm()">Отмена</button>
-        </div>
-      </div>
+SUBSCRIPTION_BASE = os.getenv("SUBSCRIPTION_BASE", "https://89.125.188.229:2096/qwss")
+DB_PATH = os.getenv("DB_PATH", "aurora.sqlite3")
 
-      <div id="subscriptionBox" class="subscription">
-        <div class="sub-title">Твоя подписка</div>
-        <div id="subLink" class="sub-link"></div>
-        <div class="qr-wrap"><img id="qrImg" alt="QR code" /></div>
-      </div>
+if not BOT_TOKEN or not XUI_URL or not XUI_LOGIN or not XUI_PASSWORD:
+    raise ValueError("Проверь BOT_TOKEN, XUI_URL, XUI_LOGIN, XUI_PASSWORD")
 
-      <div class="steps">
-        <h3>Как подключить</h3>
-        <ol>
-          <li>Нажми <b>Получить подписку</b>.</li>
-          <li>Скопируй ссылку или сканируй QR.</li>
-          <li>Установи Happ из App Store.</li>
-          <li>В Happ нажми <b>Add subscription</b> или <b>Добавить подписку</b>.</li>
-          <li>Вставь ссылку вручную или отсканируй QR.</li>
-          <li>Если нужен новый ключ — нажми <b>Сменить ключ</b> и подтверди.</li>
-        </ol>
-      </div>
+bot = Bot(token=BOT_TOKEN)
+dp = Dispatcher()
 
-      <div id="status" class="footer">Mini app готов.</div>
-      <div class="hint">Открой этот экран внутри Telegram — тогда данные дойдут до бота.</div>
-    </div>
-  </div>
 
-  <script>
-    const tg = window.Telegram.WebApp;
-    tg.ready();
-    tg.expand();
+def init_db():
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            telegram_user_id INTEGER PRIMARY KEY,
+            client_uuid TEXT NOT NULL,
+            email TEXT NOT NULL UNIQUE,
+            subscription_url TEXT NOT NULL,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    conn.commit()
+    conn.close()
 
-    const statusEl = document.getElementById("status");
-    const confirmBox = document.getElementById("confirmBox");
-    const subscriptionBox = document.getElementById("subscriptionBox");
-    const subLink = document.getElementById("subLink");
-    const qrImg = document.getElementById("qrImg");
 
-    const LS_KEY = "aurora_subscription_url";
+def db_get_user(telegram_user_id: int):
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT telegram_user_id, client_uuid, email, subscription_url, created_at FROM users WHERE telegram_user_id = ?",
+        (telegram_user_id,),
+    )
+    row = cur.fetchone()
+    conn.close()
+    return row
 
-    function setStatus(text, type = "") {
-      statusEl.className = "footer" + (type ? ` status-${type}` : "");
-      statusEl.textContent = text || "";
-    }
 
-    function saveSubscription(link) {
-      localStorage.setItem(LS_KEY, link);
-      showSubscription(link);
-    }
+def db_save_user(telegram_user_id: int, client_uuid: str, email: str, subscription_url: str):
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    cur.execute("""
+        INSERT OR REPLACE INTO users (telegram_user_id, client_uuid, email, subscription_url)
+        VALUES (?, ?, ?, ?)
+    """, (telegram_user_id, client_uuid, email, subscription_url))
+    conn.commit()
+    conn.close()
 
-    function loadSubscription() {
-      const link = localStorage.getItem(LS_KEY);
-      if (link) showSubscription(link);
-    }
 
-    function sendPayload(payload, text) {
-      try {
-        setStatus("Отправляю запрос боту...", "warn");
-        tg.sendData(JSON.stringify(payload));
-        setStatus(text || "Запрос отправлен", "ok");
-      } catch (e) {
-        setStatus("Ошибка отправки данных", "bad");
-        alert("Ошибка sendData: " + e);
-      }
-    }
+def db_delete_user(telegram_user_id: int):
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    cur.execute("DELETE FROM users WHERE telegram_user_id = ?", (telegram_user_id,))
+    conn.commit()
+    conn.close()
 
-    function issueVless() {
-      sendPayload({ action: "issue_vless" }, "Запрос на подписку отправлен");
-      const mock = localStorage.getItem(LS_KEY);
-      if (mock) showSubscription(mock);
-    }
 
-    function showConfirm() {
-      confirmBox.classList.add("show");
-      setStatus("Подтверждение готово", "warn");
-    }
+def create_client_and_subscription(telegram_user_id: int):
+    client_uuid = str(uuid4())
+    email = f"tg_{telegram_user_id}_aurora_{uuid4().hex[:8]}"
+    subscription_id = uuid4().hex[:16]
 
-    function hideConfirm() {
-      confirmBox.classList.remove("show");
-      setStatus("Отмена смены ключа", "ok");
-    }
+    api = py3xui.Api(XUI_URL, XUI_LOGIN, XUI_PASSWORD)
+    api.login()
 
-    function confirmReset() {
-      confirmBox.classList.remove("show");
-      sendPayload({ action: "confirm_new_key" }, "Запрос на смену ключа отправлен");
-      localStorage.removeItem(LS_KEY);
-      subscriptionBox.classList.remove("show");
-    }
+    new_client = py3xui.Client(id=client_uuid, email=email, enable=True, subId=subscription_id)
+    api.client.add(XUI_INBOUND_ID, [new_client])
 
-    function openSupport() {
-      sendPayload({ action: "support" }, "Запрос поддержки отправлен");
-    }
+    subscription_url = f"{SUBSCRIPTION_BASE}/{subscription_id}"
+    return client_uuid, email, subscription_url
 
-    function showSubscription(link) {
-      subLink.textContent = link;
-      qrImg.src = "https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=" + encodeURIComponent(link);
-      subscriptionBox.classList.add("show");
-      setStatus("Подписка отображена на сайте", "ok");
-    }
 
-    loadSubscription();
-  </script>
-</body>
-</html>
+def delete_existing_client(client_uuid: str):
+    api = py3xui.Api(XUI_URL, XUI_LOGIN, XUI_PASSWORD)
+    api.login()
+    api.client.delete(XUI_INBOUND_ID, client_uuid)
+
+
+def qr_bytes(data: str):
+    img = qrcode.make(data)
+    bio = BytesIO()
+    img.save(bio, format="PNG")
+    bio.seek(0)
+    return bio.read()
+
+
+def menu_keyboard():
+    return ReplyKeyboardMarkup(
+        keyboard=[[KeyboardButton(text=BOT_MENU_TEXT, web_app=WebAppInfo(url=WEBAPP_URL))]],
+        resize_keyboard=True,
+    )
+
+
+@dp.message(CommandStart())
+async def start(message: Message):
+    await message.answer("Открой мини-кабинет кнопкой ниже:", reply_markup=menu_keyboard())
+
+
+@dp.message(F.web_app_data)
+async def webapp_data(message: Message):
+    try:
+        data = json.loads(message.web_app_data.data)
+    except Exception as e:
+        await message.answer(f"Не смог разобрать web_app_data: {e}")
+        return
+
+    action = data.get("action")
+
+    if action == "issue_vless":
+        existing = db_get_user(message.from_user.id)
+        if existing:
+            _, _, email, subscription_url, _ = existing
+            qr = qr_bytes(subscription_url)
+            await message.answer(f"У тебя уже есть активная подписка:\n{subscription_url}")
+            await message.answer_photo(BufferedInputFile(qr, filename="subscription.png"), caption=f"QR для подписки: {email}")
+            return
+
+        try:
+            client_uuid, email, subscription_url = create_client_and_subscription(message.from_user.id)
+            db_save_user(message.from_user.id, client_uuid, email, subscription_url)
+            qr = qr_bytes(subscription_url)
+
+            await message.answer(f"Вот твоя подписка:\n{subscription_url}")
+            await message.answer_photo(BufferedInputFile(qr, filename="subscription.png"), caption=f"QR для подписки: {email}")
+        except Exception as e:
+            logger.exception("Ошибка при создании подписки")
+            await message.answer(f"Ошибка при создании подписки: {type(e).__name__}: {e}")
+
+    elif action == "confirm_new_key":
+        existing = db_get_user(message.from_user.id)
+
+        if existing:
+            _, client_uuid, _, _, _ = existing
+            try:
+                delete_existing_client(client_uuid)
+                db_delete_user(message.from_user.id)
+            except Exception as e:
+                logger.exception("Ошибка при удалении старого ключа")
+                await message.answer(f"Не удалось удалить старый ключ: {type(e).__name__}: {e}")
+                return
+
+        try:
+            client_uuid, email, subscription_url = create_client_and_subscription(message.from_user.id)
+            db_save_user(message.from_user.id, client_uuid, email, subscription_url)
+            qr = qr_bytes(subscription_url)
+
+            await message.answer("Создал новый ключ.")
+            await message.answer(f"Вот твоя новая подписка:\n{subscription_url}")
+            await message.answer_photo(BufferedInputFile(qr, filename="subscription.png"), caption=f"QR для новой подписки: {email}")
+        except Exception as e:
+            logger.exception("Ошибка при замене ключа")
+            await message.answer(f"Не удалось создать новый ключ: {type(e).__name__}: {e}")
+
+    elif action == "support":
+        await message.answer("Поддержка: @AURORA_TUNNEL_SUPPORT")
+
+    else:
+        await message.answer(f"Неизвестное действие из WebApp: {action}")
+
+
+async def main():
+    init_db()
+    await dp.start_polling(bot)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
