@@ -20,7 +20,6 @@
       --shadow:0 20px 45px rgba(0,0,0,.45);
       --radius:24px;
     }
-
     * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
     html, body {
       margin:0;
@@ -159,6 +158,7 @@
       word-break:break-all;
       line-height:1.45;
       margin-bottom:12px;
+      white-space: normal;
     }
     .qr-wrap {
       display:grid;
@@ -253,7 +253,7 @@
         <div class="logo">⚡</div>
         <div>
           <h1>Aurora Tunnel</h1>
-          <p>Создание и выдача подписки</p>
+          <p>Создание и выдача подписки прямо здесь</p>
         </div>
       </div>
 
@@ -343,7 +343,7 @@
         <h3>Как подключить</h3>
         <ol>
           <li>Нажми <b>Создать ключ</b>.</li>
-          <li>Посмотри карточку подписки прямо здесь.</li>
+          <li>Карточка с линком и QR появятся прямо здесь.</li>
           <li>При необходимости нажми <b>Показать ключ</b>.</li>
           <li>Нажми <b>Отправить данные в бота</b>, если хочешь получить ссылку в Telegram-чате.</li>
           <li>Вставь ссылку в Happ или отсканируй QR.</li>
@@ -391,6 +391,7 @@
       try {
         current = JSON.parse(raw);
         renderSubscription(current);
+        setStatus("Ключ загружен из памяти", "ok");
       } catch {}
     }
 
@@ -403,9 +404,9 @@
     }
 
     function renderSubscription(data) {
-      if (!data) return;
+      if (!data || !data.subscription_url) return;
 
-      metaCountry.textContent = data.country || "—";
+      metaCountry.textContent = data.country || "RU";
       metaExpire.textContent = data.expire_days ? `${data.expire_days} дней` : (data.expire_at || "—");
       metaStatus.textContent = data.status || "active";
       metaAction.textContent = data.action || "готово";
@@ -413,7 +414,7 @@
       subLink.textContent = maskLink(data.subscription_url);
 
       qrImg.src = "https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=" + encodeURIComponent(data.subscription_url);
-      qrImg.onload = () => setStatus("Подписка отображена на сайте", "ok");
+      qrImg.onload = () => setStatus("QR загружен", "ok");
       qrImg.onerror = () => setStatus("QR не загрузился", "bad");
 
       toggleText.textContent = hidden ? "Показать ключ" : "Скрыть ключ";
@@ -434,7 +435,7 @@
       };
 
       tg.sendData(JSON.stringify(payload));
-      setStatus("Запрос на создание отправлен в бота", "ok");
+      setStatus("Жду данные от бота...", "warn");
     }
 
     function showConfirm() {
@@ -468,13 +469,14 @@
         setStatus("Открой страницу в Telegram", "bad");
         return;
       }
-      tg.sendData(JSON.stringify({
+      const payload = {
         action: "send_to_bot",
         subscription_url: current.subscription_url,
         country: current.country || "RU",
         expire_days: current.expire_days || 30,
         status: current.status || "active"
-      }));
+      };
+      tg.sendData(JSON.stringify(payload));
       setStatus("Данные отправлены в бота", "ok");
     }
 
@@ -494,12 +496,17 @@
         .catch(() => setStatus("Не удалось скопировать ссылку", "bad"));
     }
 
-    function applyIncoming(data) {
-      if (!data) return;
+    // Получаем данные от бота
+    function applyIncomingData(raw) {
+      try {
+        const data = JSON.parse(raw);
+      } catch {
+        return;
+      }
       saveCurrent(data);
       hidden = true;
       renderSubscription(data);
-      setStatus("Ключ получен и показан здесь", "ok");
+      setStatus("Подписка создана и показана здесь", "ok");
     }
 
     if (isTg) {
@@ -512,7 +519,11 @@
 
     loadCurrent();
 
-    window.showSubscriptionFromBot = applyIncoming;
+    // Telegram Mini Apps передаёт данные через on swallowing
+    window.getTelegramManifest = () => ({ version: 1 });
+    window.applyIncomingData = applyIncomingData;
+    window.showSubscription = renderSubscription;
+    window.saveCurrent = saveCurrent;
     window.createKey = createKey;
     window.showConfirm = showConfirm;
     window.hideConfirm = hideConfirm;
