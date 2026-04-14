@@ -2,185 +2,343 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8" />
-    <title>Aurora Cabinet</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Aurora Cabinet</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
+        :root {
+            --bg: #0f1219;
+            --card: #171b26;
+            --card2: #1f2433;
+            --text: #e6e8eb;
+            --muted: #8b92a1;
+            --blue: #3b82f6;
+            --red: #ef4444;
+            --green: #22c55e;
+            --border: rgba(255,255,255,0.08);
+        }
+
+        * { box-sizing: border-box; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background: #0f1219;
-            color: #e6e8eb;
             margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .wrap {
+            max-width: 860px;
+            margin: 0 auto;
             padding: 20px;
         }
-        .container {
-            max-width: 700px;
-            margin: 0 auto;
-        }
-        h1 {
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
+
         .card {
-            background: #171b26;
-            border-radius: 12px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
             padding: 16px;
-            margin-bottom: 16px;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+            margin-bottom: 14px;
+            box-shadow: 0 8px 24px rgba(0,0,0,.25);
         }
+
+        .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        h1 {
+            margin: 0 0 12px;
+            font-size: 24px;
+        }
+
         .label {
+            color: var(--muted);
             font-size: 12px;
-            color: #8b92a1;
             margin-bottom: 4px;
         }
+
         .value {
             font-size: 14px;
-            word-break: break-all;
+            word-break: break-word;
         }
-        .row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            gap: 10px;
+
+        .muted {
+            color: var(--muted);
         }
+
         .btn {
-            display: inline-block;
-            background: #3b82f6;
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            padding: 8px 14px;
-            font-size: 13px;
+            border: 0;
+            background: var(--blue);
+            color: white;
+            border-radius: 10px;
+            padding: 10px 14px;
             cursor: pointer;
-        }
-        .btn-danger {
-            background: #ef4444;
-        }
-        .subs-list {
-            margin-top: 10px;
-        }
-        .sub-item {
-            background: #1f2433;
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 10px;
-        }
-        .sub-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-            gap: 10px;
-        }
-        .sub-title {
             font-size: 14px;
-            font-weight: 600;
         }
-        .sub-meta {
-            font-size: 12px;
-            color: #8b92a1;
-            margin-top: 4px;
+
+        .btn-danger {
+            background: var(--red);
         }
+
+        .btn-secondary {
+            background: #334155;
+        }
+
         .actions {
             display: flex;
             gap: 8px;
             flex-wrap: wrap;
         }
-        .status {
+
+        .subs {
+            display: grid;
+            gap: 12px;
+        }
+
+        .sub {
+            background: var(--card2);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 14px;
+        }
+
+        .sub-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            gap: 12px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .sub-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .sub-grid {
+            display: grid;
+            gap: 8px;
+        }
+
+        .status-ok {
+            color: var(--green);
+            font-weight: 600;
+        }
+
+        .status-bad {
+            color: var(--red);
+            font-weight: 600;
+        }
+
+        .notice {
+            background: #111827;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 18px;
+        }
+
+        .notice h2 {
+            margin: 0 0 10px;
+            font-size: 20px;
+        }
+
+        .notice p {
+            margin: 8px 0;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .link {
+            color: #93c5fd;
+            word-break: break-word;
+        }
+
+        .small {
             font-size: 12px;
-            color: #94a3b8;
+            color: var(--muted);
+        }
+
+        .empty {
+            padding: 16px;
+            color: var(--muted);
         }
     </style>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-    <div class="container">
-        <h1>🪐 Кабинет Aurora</h1>
-
+    <div class="wrap" id="app">
         <div class="card">
-            <div class="row">
+            <h1>🪐 Aurora Cabinet</h1>
+            <div class="top">
                 <div>
                     <div class="label">Telegram ID</div>
-                    <div class="value" id="telegram-id">Загрузка...</div>
+                    <div class="value" id="telegram-id">загрузка...</div>
                 </div>
                 <div class="actions">
-                    <button class="btn" onclick="loadSubs()">Обновить</button>
+                    <button class="btn btn-secondary" id="refresh-btn">Обновить</button>
                 </div>
-            </div>
-            <div class="row">
-                <div>
-                    <div class="label">Подписки</div>
-                    <div class="value" id="subs-count">0</div>
-                </div>
-                <div class="status" id="load-status"></div>
             </div>
         </div>
 
-        <div id="subs-container" class="subs-list">
-            <div class="card">Загрузка подписок...</div>
-        </div>
+        <div id="content"></div>
     </div>
 
     <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-
-        const user = tg.initDataUnsafe.user;
-        const userId = user?.id;
         const API_BASE = 'http://89.125.188.229:8080';
+        const BOT_LINK = 'https://t.me/AURORA_TUNNEL_BOT';
 
-        document.getElementById('telegram-id').textContent = userId || 'unknown';
+        const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+        const content = document.getElementById('content');
+        const telegramIdEl = document.getElementById('telegram-id');
+        const refreshBtn = document.getElementById('refresh-btn');
+
+        function renderBrowserStub() {
+            telegramIdEl.textContent = 'browser';
+            content.innerHTML = `
+                <div class="notice">
+                    <h2>Открой в Telegram</h2>
+                    <p>Этот кабинет работает только внутри Telegram WebApp, потому что данные подписок привязаны к вашему Telegram ID.</p>
+                    <p>Нажмите кнопку ниже, чтобы перейти в бота и открыть кабинет оттуда.</p>
+                    <div class="actions" style="margin-top:14px;">
+                        <a class="btn" href="${BOT_LINK}" target="_blank" rel="noopener noreferrer" style="text-decoration:none; display:inline-block;">Открыть бота</a>
+                    </div>
+                    <p class="small">Если вы уже открыли бот, нажмите в нём кнопку «Открыть кабинет».</p>
+                </div>
+            `;
+            refreshBtn.disabled = true;
+        }
+
+        async function apiGetSubscriptions(userId) {
+            const res = await fetch(`${API_BASE}/api/subscriptions?user_id=${encodeURIComponent(userId)}`);
+            return await res.json();
+        }
+
+        async function apiDeleteSubscription(userId, id) {
+            const res = await fetch(`${API_BASE}/api/delete-subscription`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ user_id: userId, id })
+            });
+            return await res.json();
+        }
+
+        function escapeHtml(text) {
+            return String(text)
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#039;');
+        }
 
         async function loadSubs() {
-            const status = document.getElementById('load-status');
-            const container = document.getElementById('subs-container');
-            status.textContent = 'Загрузка...';
+            if (!tg || !tg.initDataUnsafe || !tg.initDataUnsafe.user) {
+                renderBrowserStub();
+                return;
+            }
+
+            const userId = tg.initDataUnsafe.user.id;
+            telegramIdEl.textContent = userId;
+
+            content.innerHTML = `
+                <div class="card">
+                    <div class="muted">Загрузка подписок...</div>
+                </div>
+            `;
 
             try {
-                const res = await fetch(`${API_BASE}/api/subscriptions?user_id=${encodeURIComponent(userId)}`);
-                const subs = await res.json();
+                const subs = await apiGetSubscriptions(userId);
 
-                if (!Array.isArray(subs)) throw new Error('Bad response');
-
-                document.getElementById('subs-count').textContent = subs.length;
-                status.textContent = '';
-
-                if (!subs.length) {
-                    container.innerHTML = '<div class="card">У тебя пока нет подписок.</div>';
+                if (!Array.isArray(subs) || subs.length === 0) {
+                    content.innerHTML = `
+                        <div class="card">
+                            <div class="empty">У вас пока нет подписок.</div>
+                        </div>
+                    `;
                     return;
                 }
 
-                container.innerHTML = subs.map(sub => `
-                    <div class="sub-item">
-                        <div class="sub-header">
-                            <div class="sub-title">🔄 VLESS ${sub.country}</div>
-                            <button class="btn btn-danger" onclick="deleteSub(${sub.id})">Удалить</button>
+                content.innerHTML = `
+                    <div class="card">
+                        <div class="top">
+                            <div>
+                                <div class="label">Подписок</div>
+                                <div class="value">${subs.length}</div>
+                            </div>
+                            <div class="small">Данные берутся из SQLite</div>
                         </div>
-                        <div class="sub-meta">Email: ${sub.email}</div>
-                        <div class="sub-meta">Срок: ${sub.expire_days} дней • ${sub.status}</div>
-                        <div class="value" style="margin-top:8px; font-size:12px;">${sub.subscription_url}</div>
                     </div>
-                `).join('');
+                    <div class="subs">
+                        ${subs.map(sub => `
+                            <div class="sub">
+                                <div class="sub-head">
+                                    <div>
+                                        <div class="sub-title">VLESS • ${escapeHtml(sub.country || '—')}</div>
+                                        <div class="small">ID: ${sub.id}</div>
+                                    </div>
+                                    <div class="${sub.status === 'active' ? 'status-ok' : 'status-bad'}">
+                                        ${escapeHtml(sub.status || 'unknown')}
+                                    </div>
+                                </div>
+
+                                <div class="sub-grid">
+                                    <div>
+                                        <div class="label">Email</div>
+                                        <div class="value">${escapeHtml(sub.email || '')}</div>
+                                    </div>
+
+                                    <div>
+                                        <div class="label">Срок</div>
+                                        <div class="value">${escapeHtml(sub.expire_days || '')} дней</div>
+                                    </div>
+
+                                    <div>
+                                        <div class="label">Создано</div>
+                                        <div class="value">${escapeHtml(sub.created_at || '')}</div>
+                                    </div>
+
+                                    <div>
+                                        <div class="label">Ссылка подписки</div>
+                                        <div class="value link">${escapeHtml(sub.subscription_url || '')}</div>
+                                    </div>
+                                </div>
+
+                                <div class="actions" style="margin-top:12px;">
+                                    <button class="btn btn-danger" onclick="deleteSub(${sub.id})">Удалить</button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
             } catch (e) {
-                status.textContent = 'Ошибка загрузки';
-                container.innerHTML = '<div class="card">Ошибка загрузки подписок</div>';
+                content.innerHTML = `
+                    <div class="card">
+                        <div class="status-bad">Не удалось загрузить подписки.</div>
+                        <div class="small" style="margin-top:8px;">Проверь API и доступность сервера.</div>
+                    </div>
+                `;
             }
         }
 
         async function deleteSub(id) {
-            await fetch(`${API_BASE}/api/delete-subscription`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ id, user_id: userId })
-            });
-            loadSubs();
+            const userId = tg?.initDataUnsafe?.user?.id;
+            if (!userId) return;
+
+            try {
+                await apiDeleteSubscription(userId, id);
+                await loadSubs();
+            } catch (e) {
+                alert('Не удалось удалить подписку');
+            }
         }
 
-        if (userId) {
-            loadSubs();
-        } else {
-            document.getElementById('subs-container').innerHTML = '<div class="card">Открой кабинет из Telegram.</div>';
-        }
+        refreshBtn.addEventListener('click', loadSubs);
+
+        if (tg && tg.ready) tg.ready();
+        loadSubs();
     </script>
 </body>
 </html>
