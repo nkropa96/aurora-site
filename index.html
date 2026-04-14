@@ -17,7 +17,6 @@
             --green: #22c55e;
             --border: rgba(255,255,255,0.08);
         }
-
         * { box-sizing: border-box; }
         body {
             margin: 0;
@@ -25,13 +24,11 @@
             background: var(--bg);
             color: var(--text);
         }
-
         .wrap {
             max-width: 900px;
             margin: 0 auto;
             padding: 20px;
         }
-
         .card {
             background: var(--card);
             border: 1px solid var(--border);
@@ -40,7 +37,6 @@
             margin-bottom: 14px;
             box-shadow: 0 8px 24px rgba(0,0,0,.25);
         }
-
         .top {
             display: flex;
             justify-content: space-between;
@@ -48,27 +44,19 @@
             gap: 12px;
             flex-wrap: wrap;
         }
-
         h1 {
             margin: 0 0 12px;
             font-size: 24px;
         }
-
         .label {
             color: var(--muted);
             font-size: 12px;
             margin-bottom: 4px;
         }
-
         .value {
             font-size: 14px;
             word-break: break-word;
         }
-
-        .muted {
-            color: var(--muted);
-        }
-
         .btn {
             border: 0;
             background: var(--blue);
@@ -80,33 +68,16 @@
             text-decoration: none;
             display: inline-block;
         }
-
-        .btn-danger {
-            background: var(--red);
-        }
-
-        .btn-secondary {
-            background: #334155;
-        }
-
-        .actions {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .subs {
-            display: grid;
-            gap: 12px;
-        }
-
+        .btn-danger { background: var(--red); }
+        .btn-secondary { background: #334155; }
+        .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .subs { display: grid; gap: 12px; }
         .sub {
             background: var(--card2);
             border: 1px solid var(--border);
             border-radius: 14px;
             padding: 14px;
         }
-
         .sub-head {
             display: flex;
             justify-content: space-between;
@@ -115,60 +86,34 @@
             margin-bottom: 10px;
             flex-wrap: wrap;
         }
-
-        .sub-title {
-            font-size: 16px;
-            font-weight: 600;
-        }
-
-        .sub-grid {
-            display: grid;
-            gap: 8px;
-        }
-
-        .status-ok {
-            color: var(--green);
-            font-weight: 600;
-        }
-
-        .status-bad {
-            color: var(--red);
-            font-weight: 600;
-        }
-
+        .sub-title { font-size: 16px; font-weight: 600; }
+        .sub-grid { display: grid; gap: 8px; }
+        .status-ok { color: var(--green); font-weight: 600; }
+        .status-bad { color: var(--red); font-weight: 600; }
         .notice {
             background: #111827;
             border: 1px solid var(--border);
             border-radius: 16px;
             padding: 18px;
         }
-
-        .notice h2 {
-            margin: 0 0 10px;
-            font-size: 20px;
-        }
-
+        .notice h2 { margin: 0 0 10px; font-size: 20px; }
         .notice p {
             margin: 8px 0;
             color: var(--muted);
             line-height: 1.5;
         }
-
         .link {
             color: #93c5fd;
             word-break: break-word;
         }
-
         .small {
             font-size: 12px;
             color: var(--muted);
         }
-
         .empty {
             padding: 16px;
             color: var(--muted);
         }
-
         .debug {
             font-size: 12px;
             color: #cbd5e1;
@@ -237,13 +182,11 @@
         async function apiGetSubscriptions(userId) {
             const res = await fetch(`${API_BASE}/api/subscriptions?user_id=${encodeURIComponent(userId)}`);
             const text = await res.text();
-            let data;
             try {
-                data = JSON.parse(text);
+                return JSON.parse(text);
             } catch {
                 throw new Error('API returned non-JSON: ' + text.slice(0, 200));
             }
-            return data;
         }
 
         async function apiDeleteSubscription(userId, id) {
@@ -253,13 +196,11 @@
                 body: JSON.stringify({ user_id: userId, id })
             });
             const text = await res.text();
-            let data;
             try {
-                data = JSON.parse(text);
+                return JSON.parse(text);
             } catch {
                 throw new Error('Delete API returned non-JSON: ' + text.slice(0, 200));
             }
-            return data;
         }
 
         function escapeHtml(text) {
@@ -354,17 +295,14 @@
                                         <div class="label">Email</div>
                                         <div class="value">${escapeHtml(sub.email || '')}</div>
                                     </div>
-
                                     <div>
                                         <div class="label">Срок</div>
                                         <div class="value">${escapeHtml(sub.expire_days || '')} дней</div>
                                     </div>
-
                                     <div>
                                         <div class="label">Создано</div>
                                         <div class="value">${escapeHtml(sub.created_at || '')}</div>
                                     </div>
-
                                     <div>
                                         <div class="label">Ссылка подписки</div>
                                         <div class="value link">${escapeHtml(sub.subscription_url || '')}</div>
@@ -396,7 +334,6 @@
         async function deleteSub(id) {
             const userId = tg?.initDataUnsafe?.user?.id;
             if (!userId) return;
-
             try {
                 await apiDeleteSubscription(userId, id);
                 await loadSubs();
@@ -406,7 +343,6 @@
         }
 
         refreshBtn.addEventListener('click', loadSubs);
-
         if (tg && tg.ready) tg.ready();
         loadSubs();
     </script>
