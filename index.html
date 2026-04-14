@@ -89,13 +89,13 @@
       flex-direction:column;
     }
 
-    .info strong, .confirm-title, .sub-title, .steps h3, .browser-title, .platforms h3, .meta-title {
+    .info strong, .confirm-title, .sub-title, .steps h3, .browser-title, .platforms h3 {
       display:block;
       margin-bottom:4px;
       font-size:14px;
       font-weight:700;
     }
-    .info span, .confirm-text, .steps li, .browser-text, .platforms p, .meta-item {
+    .info span, .confirm-text, .steps li, .browser-text, .platforms p {
       font-size:13px;
       color:var(--muted);
       line-height:1.45;
@@ -242,6 +242,11 @@
       from { opacity:0; transform:translateY(4px); }
       to { opacity:1; transform:translateY(0); }
     }
+
+    .loading {
+      opacity: .6;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
@@ -260,7 +265,7 @@
       <div id="browserBox" class="browser-box">
         <div class="browser-title">Открой в Telegram</div>
         <div class="browser-text">
-          Этот сайт открыт в обычном браузере. Создание ключа и отправка в бот работают только внутри Telegram Mini App.
+          Этот сайт открыт в обычном браузере. Создание ключа и показ данных работают только внутри Telegram Mini App.
         </div>
       </div>
 
@@ -278,8 +283,12 @@
           <span>🗑️</span><span>Сменить ключ</span>
         </button>
 
+        <button class="btn btn-secondary" onclick="refreshData()">
+          <span>🔄</span><span>Обновить данные</span>
+        </button>
+
         <button class="btn btn-secondary" onclick="sendToBot()">
-          <span>📨</span><span>Отправить данные в бота</span>
+          <span>📨</span><span>Отправить в бота</span>
         </button>
       </div>
 
@@ -309,17 +318,14 @@
             <div id="metaStatus" class="meta-value">—</div>
           </div>
           <div class="meta-box">
-            <div class="meta-label">Действие</div>
-            <div id="metaAction" class="meta-value">—</div>
+            <div class="meta-label">Email</div>
+            <div id="metaEmail" class="meta-value">—</div>
           </div>
         </div>
 
         <div id="subLink" class="sub-link">Ссылка появится здесь</div>
 
         <div class="link-actions">
-          <button class="btn btn-secondary" onclick="toggleKey()">
-            <span>👁️</span><span id="toggleText">Показать ключ</span>
-          </button>
           <button class="btn btn-secondary" onclick="copyLink()">
             <span>📋</span><span>Скопировать ссылку</span>
           </button>
@@ -343,9 +349,9 @@
         <h3>Как подключить</h3>
         <ol>
           <li>Нажми <b>Создать ключ</b>.</li>
-          <li>Карточка с линком и QR появятся прямо здесь.</li>
-          <li>При необходимости нажми <b>Показать ключ</b>.</li>
-          <li>Нажми <b>Отправить данные в бота</b>, если хочешь получить ссылку в Telegram-чате.</li>
+          <li>Карточка с линком и QR появятся в чате и здесь.</li>
+          <li>Нажми <b>Обновить данные</b>, если нужно показать данные в HTML.</li>
+          <li>Нажми <b>Отправить в бота</b>, если хочешь получить ссылку в Telegram-чате ещё раз.</li>
           <li>Вставь ссылку в Happ или отсканируй QR.</li>
         </ol>
       </div>
@@ -368,57 +374,63 @@
     const metaCountry = document.getElementById("metaCountry");
     const metaExpire = document.getElementById("metaExpire");
     const metaStatus = document.getElementById("metaStatus");
-    const metaAction = document.getElementById("metaAction");
-    const toggleText = document.getElementById("toggleText");
+    const metaEmail = document.getElementById("metaEmail");
 
-    const LS_KEY = "aurora_subscription_data";
-    let current = null;
-    let hidden = true;
+    const API_BASE = "http://YOUR_SERVER_IP:8000"; // Замени на IP твоего сервера с app.py
+    let currentData = null;
 
     function setStatus(text, type = "") {
       statusEl.className = "footer" + (type ? ` status-${type}` : "");
       statusEl.textContent = text || "";
     }
 
-    function saveCurrent(data) {
-      current = data;
-      localStorage.setItem(LS_KEY, JSON.stringify(data));
-    }
-
-    function loadCurrent() {
-      const raw = localStorage.getItem(LS_KEY);
-      if (!raw) return;
-      try {
-        current = JSON.parse(raw);
-        renderSubscription(current);
-        setStatus("Ключ загружен из памяти", "ok");
-      } catch {}
-    }
-
-    function maskLink(link) {
-      if (!link) return "Ссылка не получена";
-      if (!hidden) return link;
-      const u = String(link);
-      if (u.length <= 24) return u;
-      return u.slice(0, 14) + "..." + u.slice(-10);
+    function setLoading(loading = true) {
+      document.body.classList.toggle("loading", loading);
     }
 
     function renderSubscription(data) {
       if (!data || !data.subscription_url) return;
 
-      metaCountry.textContent = data.country || "RU";
-      metaExpire.textContent = data.expire_days ? `${data.expire_days} дней` : (data.expire_at || "—");
-      metaStatus.textContent = data.status || "active";
-      metaAction.textContent = data.action || "готово";
+      currentData = data;
 
-      subLink.textContent = maskLink(data.subscription_url);
+      metaCountry.textContent = data.country || "RU";
+      metaExpire.textContent = data.expire_days ? `${data.expire_days} дней` : "—";
+      metaStatus.textContent = data.status || "active";
+      metaEmail.textContent = data.email || "—";
+
+      subLink.textContent = data.subscription_url;
+      subLink.href = data.subscription_url;
+      subLink.target = "_blank";
 
       qrImg.src = "https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=" + encodeURIComponent(data.subscription_url);
-      qrImg.onload = () => setStatus("QR загружен", "ok");
+      qrImg.onload = () => setStatus("Данные загружены", "ok");
       qrImg.onerror = () => setStatus("QR не загрузился", "bad");
 
-      toggleText.textContent = hidden ? "Показать ключ" : "Скрыть ключ";
       subscriptionBox.classList.add("show");
+    }
+
+    async function fetchCurrent() {
+      if (!isTg || !tg.initDataUnsafe.user?.id) {
+        setStatus("Нет данных пользователя", "bad");
+        return;
+      }
+
+      setLoading(true);
+      setStatus("Загружаю данные...", "warn");
+
+      try {
+        const response = await fetch(`${API_BASE}/current?chat_id=${tg.initDataUnsafe.user.id}`);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        const data = await response.json();
+        renderSubscription(data);
+      } catch (error) {
+        logger.error("Fetch error:", error);
+        setStatus("Не удалось загрузить данные", "bad");
+      } finally {
+        setLoading(false);
+      }
     }
 
     function createKey() {
@@ -429,13 +441,7 @@
       }
 
       setStatus("Создаю ключ...", "warn");
-
-      const payload = {
-        action: "create_key"
-      };
-
-      tg.sendData(JSON.stringify(payload));
-      setStatus("Жду данные от бота...", "warn");
+      tg.sendData(JSON.stringify({ action: "create_key" }));
     }
 
     function showConfirm() {
@@ -461,7 +467,7 @@
     }
 
     function sendToBot() {
-      if (!current?.subscription_url) {
+      if (!currentData?.subscription_url) {
         setStatus("Сначала создай ключ", "bad");
         return;
       }
@@ -471,66 +477,40 @@
       }
       const payload = {
         action: "send_to_bot",
-        subscription_url: current.subscription_url,
-        country: current.country || "RU",
-        expire_days: current.expire_days || 30,
-        status: current.status || "active"
+        subscription_url: currentData.subscription_url,
+        country: currentData.country || "RU",
+        expire_days: currentData.expire_days || 30,
+        status: currentData.status || "active"
       };
       tg.sendData(JSON.stringify(payload));
       setStatus("Данные отправлены в бота", "ok");
     }
 
-    function toggleKey() {
-      hidden = !hidden;
-      if (!current) return;
-      renderSubscription(current);
-    }
-
     function copyLink() {
-      if (!current?.subscription_url) {
+      if (!currentData?.subscription_url) {
         setStatus("Сначала создай ключ", "bad");
         return;
       }
-      navigator.clipboard.writeText(current.subscription_url)
+      navigator.clipboard.writeText(currentData.subscription_url)
         .then(() => setStatus("Ссылка скопирована", "ok"))
         .catch(() => setStatus("Не удалось скопировать ссылку", "bad"));
     }
 
-    // Получаем данные от бота
-    function applyIncomingData(raw) {
-      try {
-        const data = JSON.parse(raw);
-      } catch {
-        return;
-      }
-      saveCurrent(data);
-      hidden = true;
-      renderSubscription(data);
-      setStatus("Подписка создана и показана здесь", "ok");
+    function refreshData() {
+      fetchCurrent();
     }
 
+    // Init
     if (isTg) {
       tg.ready();
       tg.expand();
+      fetchCurrent(); // Загружаем данные при старте
     } else {
       browserBox.classList.add("show");
       setStatus("Открой через Telegram, чтобы работали кнопки", "bad");
     }
 
-    loadCurrent();
-
-    // Telegram Mini Apps передаёт данные через on swallowing
-    window.getTelegramManifest = () => ({ version: 1 });
-    window.applyIncomingData = applyIncomingData;
-    window.showSubscription = renderSubscription;
-    window.saveCurrent = saveCurrent;
-    window.createKey = createKey;
-    window.showConfirm = showConfirm;
-    window.hideConfirm = hideConfirm;
-    window.confirmReset = confirmReset;
-    window.sendToBot = sendToBot;
-    window.toggleKey = toggleKey;
-    window.copyLink = copyLink;
+    console.log("Aurora Tunnel Mini App loaded");
   </script>
 </body>
 </html>
