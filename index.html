@@ -169,7 +169,7 @@
                 <div class="notice">
                     <h2>Открой в Telegram</h2>
                     <p>Этот кабинет работает только внутри Telegram WebApp.</p>
-                    <p>Открытие из обычного браузера даёт заглушку и кнопку перехода в бота.</p>
+                    <p>Открой бота и нажми кнопку “Открыть кабинет”.</p>
                     <div class="actions" style="margin-top:14px;">
                         <a class="btn" href="${BOT_LINK}" target="_blank" rel="noopener noreferrer">Открыть бота</a>
                     </div>
@@ -214,10 +214,7 @@
 
         async function loadSubs() {
             if (!tg) {
-                setDebug([
-                    'Telegram.WebApp: not found',
-                    'Page opened outside Telegram'
-                ]);
+                setDebug(['Telegram.WebApp: not found', 'Page opened outside Telegram']);
                 renderBrowserStub('Telegram.WebApp not found');
                 return;
             }
@@ -249,21 +246,13 @@
             }
 
             telegramIdEl.textContent = userId;
-            content.innerHTML = `
-                <div class="card">
-                    <div class="muted">Загрузка подписок...</div>
-                </div>
-            `;
+            content.innerHTML = `<div class="card"><div class="muted">Загрузка подписок...</div></div>`;
 
             try {
                 const subs = await apiGetSubscriptions(userId);
 
                 if (!Array.isArray(subs) || subs.length === 0) {
-                    content.innerHTML = `
-                        <div class="card">
-                            <div class="empty">У вас пока нет подписок.</div>
-                        </div>
-                    `;
+                    content.innerHTML = `<div class="card"><div class="empty">У вас пока нет подписок.</div></div>`;
                     return;
                 }
 
@@ -317,11 +306,7 @@
                     </div>
                 `;
             } catch (e) {
-                setDebug([
-                    'Telegram.WebApp: found',
-                    'userId: ' + userId,
-                    'API error: ' + e.message
-                ]);
+                setDebug(['Telegram.WebApp: found', 'userId: ' + userId, 'API error: ' + e.message]);
                 content.innerHTML = `
                     <div class="card">
                         <div class="status-bad">Не удалось загрузить подписки.</div>
