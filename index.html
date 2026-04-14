@@ -1,109 +1,93 @@
 <!DOCTYPE html>
-<html lang="ru" data-theme="dark">
+<html lang="ru">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Aurora Tunnel mini app</title>
-  <meta name="color-scheme" content="dark light" />
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     body {
       margin: 0;
       padding: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
-      background: #050816;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #020617;
       color: #f9fafb;
-      display: flex;
       min-height: 100vh;
+      display: flex;
       align-items: center;
       justify-content: center;
     }
-
-    .container {
+    .wrap {
       width: 100%;
       max-width: 420px;
       padding: 16px;
       box-sizing: border-box;
     }
-
     .card {
-      background: radial-gradient(circle at top left, rgba(56,189,248,0.35), transparent 55%),
-                  radial-gradient(circle at bottom right, rgba(167,139,250,0.35), transparent 55%),
-                  #020617;
       border-radius: 16px;
       padding: 20px 18px 16px;
+      background: #020617;
       box-shadow:
         0 20px 40px rgba(15,23,42,0.9),
         0 0 0 1px rgba(148,163,184,0.2);
     }
-
-    .title {
-      font-size: 20px;
-      font-weight: 700;
+    h1 {
       margin: 0 0 4px;
+      font-size: 20px;
     }
-
-    .subtitle {
+    p {
+      margin: 0 0 16px;
       font-size: 13px;
       color: #9ca3af;
-      margin: 0 0 16px;
     }
-
-    .btn {
+    button {
       width: 100%;
-      border: none;
       border-radius: 999px;
+      border: none;
       padding: 12px 16px;
       font-size: 15px;
       font-weight: 600;
       cursor: pointer;
-      background: linear-gradient(135deg, #38bdf8, #a855f7);
-      color: #f9fafb;
-      box-shadow: 0 8px 22px rgba(56,189,248,0.35);
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
+      background: linear-gradient(135deg, #38bdf8, #a855f7);
+      color: #f9fafb;
+      margin-bottom: 8px;
     }
-
-    .btn span.icon {
-      font-size: 18px;
-    }
-
-    .btn-secondary {
-      margin-top: 10px;
+    .secondary {
       background: transparent;
       border: 1px solid rgba(148,163,184,0.5);
       box-shadow: none;
       color: #e5e7eb;
     }
-
-    .status {
-      margin-top: 10px;
+    #status {
+      margin-top: 6px;
       font-size: 12px;
       color: #9ca3af;
-      text-align: center;
       min-height: 16px;
+      text-align: center;
     }
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="wrap">
     <div class="card">
-      <h1 class="title">Aurora Tunnel</h1>
-      <p class="subtitle">Нажми, чтобы получить новую VLESS‑ссылку.</p>
+      <h1>Aurora Tunnel</h1>
+      <p>Нажми кнопку, чтобы запросить у бота новую VLESS‑ссылку.</p>
 
-      <button class="btn" onclick="issueVless()">
-        <span class="icon">⚡</span>
+      <button onclick="issueVless()">
+        <span>⚡</span>
         <span>Выдать VLESS</span>
       </button>
 
-      <button class="btn btn-secondary" onclick="openSupport()">
-        <span class="icon">💬</span>
+      <button class="secondary" onclick="openSupport()">
+        <span>💬</span>
         <span>Поддержка</span>
       </button>
 
-      <div id="status" class="status"></div>
+      <div id="status"></div>
     </div>
   </div>
 
@@ -114,37 +98,41 @@
     const statusEl = document.getElementById("status");
 
     function setStatus(text) {
-      if (!statusEl) return;
-      statusEl.textContent = text || "";
+      if (statusEl) {
+        statusEl.textContent = text || "";
+      }
     }
+
+    console.log("tg.initDataUnsafe:", tg.initDataUnsafe);
+    setStatus("Mini app загружен");
 
     function issueVless() {
       try {
         const payload = { action: "issue_vless" };
         console.log("Sending to bot:", payload);
-        setStatus("Запрашиваю VLESS у бота...");
+        setStatus("Отправляю запрос боту...");
+        alert("Жму sendData issue_vless"); // временно для проверки
         tg.sendData(JSON.stringify(payload));
-        // Можно закрыть мини‑апп после отправки, если хочешь:
-        // tg.close();
       } catch (e) {
         console.error("sendData error", e);
-        setStatus("Ошибка отправки данных в бота");
+        setStatus("Ошибка sendData: " + e);
+        alert("Ошибка sendData: " + e);
       }
     }
 
     function openSupport() {
       try {
         const payload = { action: "support" };
-        console.log("Sending support action:", payload);
+        console.log("Sending to bot:", payload);
         setStatus("Открываю поддержку...");
+        alert("Жму sendData support"); // временно для проверки
         tg.sendData(JSON.stringify(payload));
       } catch (e) {
         console.error("sendData error", e);
-        setStatus("Ошибка отправки данных в бота");
+        setStatus("Ошибка sendData: " + e);
+        alert("Ошибка sendData: " + e);
       }
     }
-
-    console.log("TG WebApp initDataUnsafe:", tg.initDataUnsafe);
   </script>
 </body>
 </html>
