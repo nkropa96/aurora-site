@@ -27,7 +27,7 @@
         }
 
         .wrap {
-            max-width: 860px;
+            max-width: 900px;
             margin: 0 auto;
             padding: 20px;
         }
@@ -77,6 +77,8 @@
             padding: 10px 14px;
             cursor: pointer;
             font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
         }
 
         .btn-danger {
@@ -166,10 +168,21 @@
             padding: 16px;
             color: var(--muted);
         }
+
+        .debug {
+            font-size: 12px;
+            color: #cbd5e1;
+            white-space: pre-wrap;
+            word-break: break-word;
+            background: #0b1020;
+            border: 1px solid var(--border);
+            padding: 12px;
+            border-radius: 12px;
+        }
     </style>
 </head>
 <body>
-    <div class="wrap" id="app">
+    <div class="wrap">
         <div class="card">
             <h1>🪐 Aurora Cabinet</h1>
             <div class="top">
@@ -184,6 +197,11 @@
         </div>
 
         <div id="content"></div>
+
+        <div class="card">
+            <div class="label">Отладка</div>
+            <div class="debug" id="debug-box">...</div>
+        </div>
     </div>
 
     <script>
@@ -194,18 +212,23 @@
         const content = document.getElementById('content');
         const telegramIdEl = document.getElementById('telegram-id');
         const refreshBtn = document.getElementById('refresh-btn');
+        const debugBox = document.getElementById('debug-box');
 
-        function renderBrowserStub() {
+        function setDebug(lines) {
+            debugBox.textContent = lines.join('\n');
+        }
+
+        function renderBrowserStub(reason) {
             telegramIdEl.textContent = 'browser';
             content.innerHTML = `
                 <div class="notice">
                     <h2>Открой в Telegram</h2>
-                    <p>Этот кабинет работает только внутри Telegram WebApp, потому что данные подписок привязаны к вашему Telegram ID.</p>
-                    <p>Нажмите кнопку ниже, чтобы перейти в бота и открыть кабинет оттуда.</p>
+                    <p>Этот кабинет работает только внутри Telegram WebApp.</p>
+                    <p>Открытие из обычного браузера даёт заглушку и кнопку перехода в бота.</p>
                     <div class="actions" style="margin-top:14px;">
-                        <a class="btn" href="${BOT_LINK}" target="_blank" rel="noopener noreferrer" style="text-decoration:none; display:inline-block;">Открыть бота</a>
+                        <a class="btn" href="${BOT_LINK}" target="_blank" rel="noopener noreferrer">Открыть бота</a>
                     </div>
-                    <p class="small">Если вы уже открыли бот, нажмите в нём кнопку «Открыть кабинет».</p>
+                    <p class="small">Причина: ${reason}</p>
                 </div>
             `;
             refreshBtn.disabled = true;
@@ -213,7 +236,14 @@
 
         async function apiGetSubscriptions(userId) {
             const res = await fetch(`${API_BASE}/api/subscriptions?user_id=${encodeURIComponent(userId)}`);
-            return await res.json();
+            const text = await res.text();
+            let data;
+            try {
+                data = JSON.parse(text);
+            } catch {
+                throw new Error('API returned non-JSON: ' + text.slice(0, 200));
+            }
+            return data;
         }
 
         async function apiDeleteSubscription(userId, id) {
@@ -222,7 +252,14 @@
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ user_id: userId, id })
             });
-            return await res.json();
+            const text = await res.text();
+            let data;
+            try {
+                data = JSON.parse(text);
+            } catch {
+                throw new Error('Delete API returned non-JSON: ' + text.slice(0, 200));
+            }
+            return data;
         }
 
         function escapeHtml(text) {
@@ -235,14 +272,42 @@
         }
 
         async function loadSubs() {
-            if (!tg || !tg.initDataUnsafe || !tg.initDataUnsafe.user) {
-                renderBrowserStub();
+            if (!tg) {
+                setDebug([
+                    'Telegram.WebApp: not found',
+                    'Page opened outside Telegram'
+                ]);
+                renderBrowserStub('Telegram.WebApp not found');
                 return;
             }
 
-            const userId = tg.initDataUnsafe.user.id;
-            telegramIdEl.textContent = userId;
+            const user = tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user : null;
+            const userId = user ? user.id : null;
+            const initData = tg.initData || '';
 
+            setDebug([
+                'Telegram.WebApp: found',
+                'initData length: ' + initData.length,
+                'userId: ' + (userId || 'EMPTY'),
+                'user name: ' + (user ? (user.first_name || '') : 'EMPTY')
+            ]);
+
+            if (!userId) {
+                telegramIdEl.textContent = 'EMPTY';
+                content.innerHTML = `
+                    <div class="notice">
+                        <h2>Нет данных пользователя</h2>
+                        <p>Telegram WebApp открыл страницу, но user.id не передан.</p>
+                        <p>Открой кабинет ещё раз через кнопку WebApp в боте.</p>
+                        <div class="actions" style="margin-top:14px;">
+                            <a class="btn" href="${BOT_LINK}" target="_blank" rel="noopener noreferrer">Перейти в бота</a>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            telegramIdEl.textContent = userId;
             content.innerHTML = `
                 <div class="card">
                     <div class="muted">Загрузка подписок...</div>
@@ -314,6 +379,11 @@
                     </div>
                 `;
             } catch (e) {
+                setDebug([
+                    'Telegram.WebApp: found',
+                    'userId: ' + userId,
+                    'API error: ' + e.message
+                ]);
                 content.innerHTML = `
                     <div class="card">
                         <div class="status-bad">Не удалось загрузить подписки.</div>
