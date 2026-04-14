@@ -79,7 +79,7 @@
     .brand h1 { margin:0; font-size:20px; line-height:1.15; }
     .brand p { margin:2px 0 0; font-size:13px; color:var(--muted); }
 
-    .info, .confirm, .subscription, .steps, .browser-box, .platforms {
+    .info, .confirm, .subscription, .steps, .browser-box, .platforms, .meta {
       display:flex;
       gap:10px;
       padding:14px;
@@ -89,22 +89,25 @@
       margin-top:12px;
       flex-direction:column;
     }
-    .info strong, .confirm-title, .sub-title, .steps h3, .browser-title, .platforms h3 {
+
+    .info strong, .confirm-title, .sub-title, .steps h3, .browser-title, .platforms h3, .meta-title {
       display:block;
       margin-bottom:4px;
       font-size:14px;
       font-weight:700;
     }
-    .info span, .confirm-text, .steps li, .browser-text, .platforms p {
+    .info span, .confirm-text, .steps li, .browser-text, .platforms p, .meta-item {
       font-size:13px;
       color:var(--muted);
       line-height:1.45;
     }
+
     .actions {
       display:grid;
       gap:10px;
       margin-top:16px;
     }
+
     .btn {
       width:100%;
       border:0;
@@ -149,6 +152,7 @@
       gap:8px;
       margin-top:8px;
     }
+
     .sub-link {
       font-size:13px;
       color:#7dd3fc;
@@ -168,6 +172,7 @@
       height:220px;
       display:block;
     }
+
     .footer {
       margin-top:14px;
       font-size:12px;
@@ -178,20 +183,19 @@
     .status-ok { color:var(--success); }
     .status-warn { color:#fbbf24; }
     .status-bad { color:var(--danger); }
+
     .hint {
       margin-top:14px;
       font-size:12px;
       color:var(--muted);
       text-align:center;
     }
+
     .steps ol {
       margin:0;
       padding-left:18px;
     }
-    .steps a {
-      color:#7dd3fc;
-      text-decoration:none;
-    }
+
     .platforms ul {
       margin:0;
       padding-left:18px;
@@ -202,11 +206,38 @@
       line-height:1.45;
       margin-bottom:8px;
     }
-    .store-links {
+
+    .meta-grid {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+    }
+
+    .meta-box {
+      padding:10px;
+      border-radius:14px;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.06);
+    }
+
+    .meta-label {
+      font-size:11px;
+      color:#94a3b8;
+      margin-bottom:4px;
+    }
+
+    .meta-value {
+      font-size:13px;
+      color:#f8fafc;
+      word-break:break-word;
+    }
+
+    .link-actions {
       display:grid;
       gap:8px;
       margin-top:8px;
     }
+
     @keyframes fade {
       from { opacity:0; transform:translateY(4px); }
       to { opacity:1; transform:translateY(0); }
@@ -222,39 +253,39 @@
         <div class="logo">⚡</div>
         <div>
           <h1>Aurora Tunnel</h1>
-          <p>Подписка для Happ и других клиентов</p>
+          <p>Создание и выдача подписки</p>
         </div>
       </div>
 
       <div id="browserBox" class="browser-box">
         <div class="browser-title">Открой в Telegram</div>
         <div class="browser-text">
-          Этот сайт открыт в обычном браузере. Выдача подписки и смена ключа работают только внутри Telegram Mini App.
+          Этот сайт открыт в обычном браузере. Создание ключа и отправка в бот работают только внутри Telegram Mini App.
         </div>
       </div>
 
       <div class="info">
         <strong>Один пользователь — один ключ</strong>
-        <span>Если подписка уже есть, бот вернёт её. Новый ключ создаётся только после подтверждения.</span>
+        <span>Новый ключ создаётся только после подтверждения. Карточка подписки показывается прямо здесь.</span>
       </div>
 
       <div class="actions">
-        <button class="btn btn-primary" onclick="issueVless()">
-          <span>⚡</span><span>Получить подписку</span>
+        <button class="btn btn-primary" onclick="createKey()">
+          <span>⚡</span><span>Создать ключ</span>
         </button>
 
         <button class="btn btn-danger" onclick="showConfirm()">
           <span>🗑️</span><span>Сменить ключ</span>
         </button>
 
-        <button class="btn btn-secondary" onclick="openSupport()">
-          <span>💬</span><span>Поддержка</span>
+        <button class="btn btn-secondary" onclick="sendToBot()">
+          <span>📨</span><span>Отправить данные в бота</span>
         </button>
       </div>
 
       <div id="confirmBox" class="confirm">
         <div class="confirm-title">Сменить ключ?</div>
-        <div class="confirm-text">Старый ключ будет удалён, затем бот создаст новый и отправит свежую подписку.</div>
+        <div class="confirm-text">Старый ключ будет удалён, затем будет создан новый.</div>
         <div class="confirm-actions">
           <button class="btn btn-danger" onclick="confirmReset()">Да, сменить</button>
           <button class="btn btn-secondary" onclick="hideConfirm()">Отмена</button>
@@ -263,48 +294,64 @@
 
       <div id="subscriptionBox" class="subscription">
         <div class="sub-title">Твоя подписка</div>
-        <div id="subLink" class="sub-link"></div>
+
+        <div class="meta-grid">
+          <div class="meta-box">
+            <div class="meta-label">Страна</div>
+            <div id="metaCountry" class="meta-value">—</div>
+          </div>
+          <div class="meta-box">
+            <div class="meta-label">Срок</div>
+            <div id="metaExpire" class="meta-value">—</div>
+          </div>
+          <div class="meta-box">
+            <div class="meta-label">Статус</div>
+            <div id="metaStatus" class="meta-value">—</div>
+          </div>
+          <div class="meta-box">
+            <div class="meta-label">Действие</div>
+            <div id="metaAction" class="meta-value">—</div>
+          </div>
+        </div>
+
+        <div id="subLink" class="sub-link">Ссылка появится здесь</div>
+
+        <div class="link-actions">
+          <button class="btn btn-secondary" onclick="toggleKey()">
+            <span>👁️</span><span id="toggleText">Показать ключ</span>
+          </button>
+          <button class="btn btn-secondary" onclick="copyLink()">
+            <span>📋</span><span>Скопировать ссылку</span>
+          </button>
+        </div>
+
         <div class="qr-wrap">
           <img id="qrImg" alt="QR code" />
         </div>
-        <button class="btn btn-primary" onclick="copyLink()">Скопировать ссылку</button>
       </div>
 
       <div class="platforms">
         <h3>Настройка по платформам</h3>
         <ul>
-          ><b>Android:</b> скачай Happ APK с официального сайта или установи из Google Play, затем добавь подписку по ссылке или QR.</li>
-          ><b>iPhone:</b> установи Happ из App Store, потом вставь ссылку на подписку или импортируй QR.</li>
-          ><b>ПК:</b> скачай Happ для Windows с официального сайта и импортируй подписку через URL.</li>
+          <li><b>Android:</b> скачай Happ APK с официального сайта или из Google Play, затем вставь ссылку на подписку или отсканируй QR.</li>
+          <li><b>iPhone:</b> установи Happ из App Store, потом добавь подписку через ссылку или QR.</li>
+          <li><b>ПК:</b> скачай Happ для Windows с официального сайта и импортируй подписку через URL.</li>
         </ul>
-
-        <div class="store-links">
-          <a class="btn btn-secondary" href="https://play.google.com/store/apps/details?id=com.happproxy" target="_blank" rel="noopener">
-            Скачать Happ для Android
-          </a>
-          <a class="btn btn-secondary" href="https://apps.apple.com/us/app/happ-proxy-utility/id6504287215" target="_blank" rel="noopener">
-            Скачать Happ для iPhone
-          </a>
-          <a class="btn btn-secondary" href="https://github.com/Happ-proxy/happ-desktop/releases/latest" target="_blank" rel="noopener">
-            Скачать Happ для ПК
-          </a>
-        </div>
       </div>
 
       <div class="steps">
         <h3>Как подключить</h3>
         <ol>
-          >Нажми <b>Получить подписку</b>.</li>
-          >Скопируй ссылку или сканируй QR.</li>
-          >Установи нужную версию Happ для своей платформы.</li>
-          >В приложении нажми <b>Add subscription</b> или <b>Добавить подписку</b>.</li>
-          >Вставь ссылку вручную или отсканируй QR.</li>
-          >Если нужен новый ключ — нажми <b>Сменить ключ</b> и подтверди.</li>
+          <li>Нажми <b>Создать ключ</b>.</li>
+          <li>Посмотри карточку подписки прямо здесь.</li>
+          <li>При необходимости нажми <b>Показать ключ</b>.</li>
+          <li>Нажми <b>Отправить данные в бота</b>, если хочешь получить ссылку в Telegram-чате.</li>
+          <li>Вставь ссылку в Happ или отсканируй QR.</li>
         </ol>
       </div>
 
       <div id="status" class="footer">Mini app готов.</div>
-      <div class="hint">Открывай страницу через Telegram, иначе кнопки выдачи не сработают.</div>
+      <div class="hint">В браузере кнопки создания и отправки не сработают.</div>
     </div>
   </div>
 
@@ -318,57 +365,76 @@
     const subLink = document.getElementById("subLink");
     const qrImg = document.getElementById("qrImg");
     const browserBox = document.getElementById("browserBox");
-    const LS_KEY = "aurora_subscription_url";
+    const metaCountry = document.getElementById("metaCountry");
+    const metaExpire = document.getElementById("metaExpire");
+    const metaStatus = document.getElementById("metaStatus");
+    const metaAction = document.getElementById("metaAction");
+    const toggleText = document.getElementById("toggleText");
+
+    const LS_KEY = "aurora_subscription_data";
+    let current = null;
+    let hidden = true;
 
     function setStatus(text, type = "") {
       statusEl.className = "footer" + (type ? ` status-${type}` : "");
       statusEl.textContent = text || "";
     }
 
-    function showSubscription(link) {
-      subLink.textContent = link;
-      qrImg.src = "https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=" + encodeURIComponent(link);
-      subscriptionBox.classList.add("show");
-      localStorage.setItem(LS_KEY, link);
-      setStatus("Подписка отображена на сайте", "ok");
+    function saveCurrent(data) {
+      current = data;
+      localStorage.setItem(LS_KEY, JSON.stringify(data));
     }
 
-    function loadSubscription() {
-      const link = localStorage.getItem(LS_KEY);
-      if (link) showSubscription(link);
-    }
-
-    function copyLink() {
-      const link = localStorage.getItem(LS_KEY);
-      if (!link) {
-        setStatus("Сначала получи подписку", "bad");
-        return;
-      }
-      navigator.clipboard.writeText(link).then(() => {
-        setStatus("Ссылка скопирована", "ok");
-      }).catch(() => {
-        setStatus("Не удалось скопировать ссылку", "bad");
-      });
-    }
-
-    function sendPayload(payload, text) {
-      if (!isTg) {
-        setStatus("Открой страницу в Telegram, иначе выдача не работает", "bad");
-        browserBox.classList.add("show");
-        return;
-      }
+    function loadCurrent() {
+      const raw = localStorage.getItem(LS_KEY);
+      if (!raw) return;
       try {
-        setStatus("Отправляю запрос боту...", "warn");
-        tg.sendData(JSON.stringify(payload));
-        setStatus(text || "Запрос отправлен", "ok");
-      } catch (e) {
-        setStatus("Ошибка отправки данных", "bad");
-        alert("Ошибка sendData: " + e);
-      }
+        current = JSON.parse(raw);
+        renderSubscription(current);
+      } catch {}
     }
 
-    function issueVless() {
-      sendPayload({ action: "issue_vless" }, "Запрос на подписку отправлен");
+    function maskLink(link) {
+      if (!link) return "Ссылка не получена";
+      if (!hidden) return link;
+      const u = String(link);
+      if (u.length <= 24) return u;
+      return u.slice(0, 14) + "..." + u.slice(-10);
+    }
+
+    function renderSubscription(data) {
+      if (!data) return;
+
+      metaCountry.textContent = data.country || "—";
+      metaExpire.textContent = data.expire_days ? `${data.expire_days} дней` : (data.expire_at || "—");
+      metaStatus.textContent = data.status || "active";
+      metaAction.textContent = data.action || "готово";
+
+      subLink.textContent = maskLink(data.subscription_url);
+
+      qrImg.src = "https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=" + encodeURIComponent(data.subscription_url);
+      qrImg.onload = () => setStatus("Подписка отображена на сайте", "ok");
+      qrImg.onerror = () => setStatus("QR не загрузился", "bad");
+
+      toggleText.textContent = hidden ? "Показать ключ" : "Скрыть ключ";
+      subscriptionBox.classList.add("show");
+    }
+
+    function createKey() {
+      if (!isTg) {
+        browserBox.classList.add("show");
+        setStatus("Открой страницу в Telegram", "bad");
+        return;
+      }
+
+      setStatus("Создаю ключ...", "warn");
+
+      const payload = {
+        action: "create_key"
+      };
+
+      tg.sendData(JSON.stringify(payload));
+      setStatus("Запрос на создание отправлен в бота", "ok");
     }
 
     function showConfirm() {
@@ -388,24 +454,72 @@
 
     function confirmReset() {
       confirmBox.classList.remove("show");
-      sendPayload({ action: "confirm_new_key" }, "Запрос на смену ключа отправлен");
-      localStorage.removeItem(LS_KEY);
-      subscriptionBox.classList.remove("show");
+      if (!isTg) return;
+      tg.sendData(JSON.stringify({ action: "reset_key" }));
+      setStatus("Запрос на смену ключа отправлен", "ok");
     }
 
-    function openSupport() {
-      sendPayload({ action: "support" }, "Запрос поддержки отправлен");
+    function sendToBot() {
+      if (!current?.subscription_url) {
+        setStatus("Сначала создай ключ", "bad");
+        return;
+      }
+      if (!isTg) {
+        setStatus("Открой страницу в Telegram", "bad");
+        return;
+      }
+      tg.sendData(JSON.stringify({
+        action: "send_to_bot",
+        subscription_url: current.subscription_url,
+        country: current.country || "RU",
+        expire_days: current.expire_days || 30,
+        status: current.status || "active"
+      }));
+      setStatus("Данные отправлены в бота", "ok");
+    }
+
+    function toggleKey() {
+      hidden = !hidden;
+      if (!current) return;
+      renderSubscription(current);
+    }
+
+    function copyLink() {
+      if (!current?.subscription_url) {
+        setStatus("Сначала создай ключ", "bad");
+        return;
+      }
+      navigator.clipboard.writeText(current.subscription_url)
+        .then(() => setStatus("Ссылка скопирована", "ok"))
+        .catch(() => setStatus("Не удалось скопировать ссылку", "bad"));
+    }
+
+    function applyIncoming(data) {
+      if (!data) return;
+      saveCurrent(data);
+      hidden = true;
+      renderSubscription(data);
+      setStatus("Ключ получен и показан здесь", "ok");
     }
 
     if (isTg) {
       tg.ready();
       tg.expand();
-      loadSubscription();
     } else {
       browserBox.classList.add("show");
-      loadSubscription();
-      setStatus("Открой через Telegram, чтобы кнопки выдачи заработали", "bad");
+      setStatus("Открой через Telegram, чтобы работали кнопки", "bad");
     }
+
+    loadCurrent();
+
+    window.showSubscriptionFromBot = applyIncoming;
+    window.createKey = createKey;
+    window.showConfirm = showConfirm;
+    window.hideConfirm = hideConfirm;
+    window.confirmReset = confirmReset;
+    window.sendToBot = sendToBot;
+    window.toggleKey = toggleKey;
+    window.copyLink = copyLink;
   </script>
 </body>
 </html>
