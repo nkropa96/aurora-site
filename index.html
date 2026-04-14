@@ -139,9 +139,7 @@
                 const res = await fetch(`/api/subscriptions?user_id=${encodeURIComponent(userId)}`);
                 const subs = await res.json();
 
-                if (!Array.isArray(subs)) {
-                    throw new Error('Bad response');
-                }
+                if (!Array.isArray(subs)) throw new Error('Bad response');
 
                 document.getElementById('subs-count').textContent = subs.length;
                 status.textContent = '';
@@ -151,24 +149,30 @@
                     return;
                 }
 
-                container.innerHTML = subs.map(sub => {
-                    const protocolEmoji = sub.protocol === 'vless' ? '🔄' : '⚡';
-                    const protocolName = sub.protocol === 'vless' ? 'VLESS' : 'Unknown';
-                    return `
-                        <div class="sub-item">
-                            <div class="sub-header">
-                                <div class="sub-title">${protocolEmoji} ${protocolName} ${sub.country}</div>
-                            </div>
-                            <div class="sub-meta">Email: ${sub.email}</div>
-                            <div class="sub-meta">Срок: ${sub.expire_days} дней • ${sub.status}</div>
-                            <div class="value" style="margin-top:8px; font-size:12px;">${sub.subscription_url}</div>
+                container.innerHTML = subs.map(sub => `
+                    <div class="sub-item">
+                        <div class="sub-header">
+                            <div class="sub-title">🔄 VLESS ${sub.country}</div>
+                            <button class="btn btn-danger" onclick="deleteSub(${sub.id})">Удалить</button>
                         </div>
-                    `;
-                }).join('');
+                        <div class="sub-meta">Email: ${sub.email}</div>
+                        <div class="sub-meta">Срок: ${sub.expire_days} дней • ${sub.status}</div>
+                        <div class="value" style="margin-top:8px; font-size:12px;">${sub.subscription_url}</div>
+                    </div>
+                `).join('');
             } catch (e) {
                 status.textContent = 'Ошибка загрузки';
                 container.innerHTML = '<div class="card">Ошибка загрузки подписок</div>';
             }
+        }
+
+        async function deleteSub(id) {
+            await fetch('/api/delete-subscription', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ id, user_id: userId })
+            });
+            loadSubs();
         }
 
         if (userId) {
