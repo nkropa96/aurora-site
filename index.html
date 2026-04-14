@@ -5,269 +5,146 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Aurora Tunnel mini app</title>
   <meta name="color-scheme" content="dark light" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    :root, [data-theme="light"] {
-      --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
-      --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
-      --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
-      --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
-      --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
-      --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem; --space-4: 1rem;
-      --space-5: 1.25rem; --space-6: 1.5rem; --space-8: 2rem; --space-10: 2.5rem;
-      --space-12: 3rem; --space-16: 4rem;
-      --radius-sm: 0.375rem; --radius-md: 0.5rem; --radius-lg: 0.75rem; --radius-xl: 1rem; --radius-2xl: 1.5rem; --radius-full: 9999px;
-      --color-bg: #f2f2ef;
-      --color-surface: #ffffff;
-      --color-surface-2: #ecece7;
-      --color-border: rgba(0,0,0,.08);
-      --color-text: #101010;
-      --color-text-muted: #65645c;
-      --color-accent: #f5cb17;
-      --color-accent-strong: #ffd84a;
-      --color-vless: #f5cb17;
-      --color-awg: #89d98b;
-      --color-success: #2f8a42;
-      --font-body: 'Inter', system-ui, sans-serif;
-      --shadow-sm: 0 2px 10px rgba(0,0,0,.08);
-      --shadow-md: 0 16px 40px rgba(0,0,0,.14);
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+      background: #050816;
+      color: #f9fafb;
+      display: flex;
+      min-height: 100vh;
+      align-items: center;
+      justify-content: center;
     }
-    [data-theme="dark"] {
-      --color-bg: #070707;
-      --color-surface: #111111;
-      --color-surface-2: #171717;
-      --color-border: rgba(255,255,255,.08);
-      --color-text: #f2efe5;
-      --color-text-muted: #a9a59c;
-      --color-accent: #ffd400;
-      --color-accent-strong: #ffe35f;
-      --color-vless: #ffd400;
-      --color-awg: #8ddf90;
-      --color-success: #9fe870;
-      --shadow-sm: 0 2px 10px rgba(0,0,0,.34);
-      --shadow-md: 0 18px 48px rgba(0,0,0,.45);
+
+    .container {
+      width: 100%;
+      max-width: 420px;
+      padding: 16px;
+      box-sizing: border-box;
     }
-    *,:before,:after{box-sizing:border-box}
-    html,body{margin:0;padding:0;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);font-size:var(--text-base);line-height:1.5;-webkit-font-smoothing:antialiased}
-    body{min-height:100dvh;background-image:radial-gradient(circle at top right, rgba(255,212,0,.03), transparent 20%), radial-gradient(circle at bottom left, rgba(255,212,0,.02), transparent 24%)}
-    a{color:inherit;text-decoration:none}
-    button{font:inherit;border:0;cursor:pointer}
-    .app{max-width:920px;margin:0 auto;padding:var(--space-4);padding-bottom:calc(var(--space-16) + env(safe-area-inset-bottom));}
-    .topbar{display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);margin-bottom:var(--space-6)}
-    .brand{display:flex;align-items:center;gap:var(--space-3)}
-    .logo{width:48px;height:48px;border-radius:15px;background:var(--color-surface-2);display:grid;place-items:center;box-shadow:var(--shadow-sm);color:var(--color-accent);position:relative;overflow:hidden;border:1px solid rgba(255,212,0,.14)}
-    .logo:before{content:"";position:absolute;inset:8px;border-radius:12px;border:1px solid rgba(255,212,0,.12)}
-    .logo svg{width:26px;height:26px;position:relative;z-index:1}
-    .brand h1{font-size:var(--text-lg);margin:0;font-weight:800;letter-spacing:-.03em;text-transform:uppercase}
-    .brand p{margin:0;color:var(--color-text-muted);font-size:var(--text-sm)}
-    .theme-btn{width:44px;height:44px;border-radius:999px;background:var(--color-surface);color:var(--color-accent);border:1px solid var(--color-border)}
-    .hero{position:relative;background:linear-gradient(180deg, rgba(255,212,0,.04), transparent 50%),var(--color-surface);border:1px solid var(--color-border);border-radius:28px;padding:var(--space-6);box-shadow:var(--shadow-md);overflow:hidden}
-    .hero:before{content:"";position:absolute;top:-30px;right:-30px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle, rgba(255,212,0,.1), transparent 62%)}
-    .badge{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(255,212,0,.08);color:var(--color-accent);font-size:var(--text-sm);font-weight:700;margin-bottom:var(--space-4);border:1px solid rgba(255,212,0,.14)}
-    .hero h2{font-size:var(--text-xl);line-height:1.03;letter-spacing:-.05em;margin:0 0 var(--space-4);max-width:12ch;position:relative;z-index:1}
-    .hero p{margin:0 0 var(--space-5);color:var(--color-text-muted);max-width:66ch;position:relative;z-index:1}
-    .hero-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-3);position:relative;z-index:1}
-    .btn{min-height:50px;border-radius:16px;padding:14px 16px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;gap:10px;transition:.18s ease;letter-spacing:-.01em}
-    .btn-primary{background:var(--color-accent);color:#0b0b0b}
-    .btn-primary:hover{background:var(--color-accent-strong);transform:translateY(-1px)}
-    .btn-secondary{background:transparent;color:var(--color-text);border:1px solid rgba(255,212,0,.18)}
-    .btn-secondary:hover{border-color:rgba(255,212,0,.34);background:rgba(255,212,0,.04)}
-    .stats,.protocols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-4);margin-top:var(--space-4)}
-    .card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:22px;padding:var(--space-5);box-shadow:var(--shadow-sm);position:relative;overflow:hidden}
-    .card:before{content:"";position:absolute;left:0;top:0;right:0;height:2px;background:linear-gradient(90deg,var(--color-accent),transparent)}
-    .card h3{margin:0 0 10px;font-size:var(--text-lg);letter-spacing:-.02em}
-    .card p{margin:0;color:var(--color-text-muted);font-size:var(--text-sm)}
-    .card .value{margin-top:var(--space-4);font-size:1.7rem;font-weight:800;letter-spacing:-.04em}
-    .protocol-card{padding:var(--space-5);border-radius:22px;background:var(--color-surface);border:1px solid var(--color-border);box-shadow:var(--shadow-sm)}
-    .protocol-top{display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);margin-bottom:var(--space-4)}
-    .protocol-name{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.02em}
-    .dot{width:10px;height:10px;border-radius:999px}
-    .dot-vless{background:var(--color-vless)}
-    .dot-awg{background:var(--color-awg)}
-    .protocol-meta{font-size:var(--text-xs);padding:6px 10px;border-radius:999px;background:var(--color-surface-2);color:var(--color-text-muted);border:1px solid var(--color-border)}
-    .protocol-card ul{margin:0;padding-left:18px;color:var(--color-text-muted);font-size:var(--text-sm)}
-    .protocol-card li+li{margin-top:8px}
-    .list{display:grid;gap:var(--space-3);margin-top:var(--space-6)}
-    .item{display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);padding:16px;border-radius:18px;background:var(--color-surface);border:1px solid var(--color-border)}
-    .item strong{display:block;font-size:var(--text-base)}
-    .item span{display:block;color:var(--color-text-muted);font-size:var(--text-sm)}
-    .ghost{padding:11px 14px;border-radius:14px;background:transparent;border:1px solid rgba(255,212,0,.18);font-weight:700;color:var(--color-accent)}
-    .ghost:hover{background:rgba(255,212,0,.05)}
-    .section-title{margin:var(--space-8) 0 var(--space-4);font-size:var(--text-lg);letter-spacing:-.02em;text-transform:uppercase}
-    .footer-note{margin-top:var(--space-8);padding:var(--space-4);border-radius:18px;background:var(--color-surface-2);border:1px dashed rgba(255,212,0,.18);color:var(--color-text-muted);font-size:var(--text-sm)}
-    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;word-break:break-all}
-    .ok{color:var(--color-success)}
-    .stripe{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;background:var(--color-surface-2);border:1px solid rgba(255,212,0,.14);color:var(--color-accent);font-size:var(--text-xs);font-weight:700;margin-top:var(--space-3)}
-    @media (max-width: 760px){.hero-actions,.stats,.protocols{grid-template-columns:1fr}.hero{padding:var(--space-5)}.hero h2{max-width:none}.app{padding:14px}.item{align-items:flex-start;flex-direction:column}.item .ghost{width:100%}}
+
+    .card {
+      background: radial-gradient(circle at top left, rgba(56,189,248,0.35), transparent 55%),
+                  radial-gradient(circle at bottom right, rgba(167,139,250,0.35), transparent 55%),
+                  #020617;
+      border-radius: 16px;
+      padding: 20px 18px 16px;
+      box-shadow:
+        0 20px 40px rgba(15,23,42,0.9),
+        0 0 0 1px rgba(148,163,184,0.2);
+    }
+
+    .title {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 0 0 4px;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: #9ca3af;
+      margin: 0 0 16px;
+    }
+
+    .btn {
+      width: 100%;
+      border: none;
+      border-radius: 999px;
+      padding: 12px 16px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      background: linear-gradient(135deg, #38bdf8, #a855f7);
+      color: #f9fafb;
+      box-shadow: 0 8px 22px rgba(56,189,248,0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn span.icon {
+      font-size: 18px;
+    }
+
+    .btn-secondary {
+      margin-top: 10px;
+      background: transparent;
+      border: 1px solid rgba(148,163,184,0.5);
+      box-shadow: none;
+      color: #e5e7eb;
+    }
+
+    .status {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #9ca3af;
+      text-align: center;
+      min-height: 16px;
+    }
   </style>
 </head>
 <body>
-  <main class="app">
-    <div class="topbar">
-      <div class="brand">
-        <div class="logo" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-label="Aurora Tunnel logo">
-            <path d="M4 15c2.2-5 5.8-8 8-8s5.8 3 8 8"></path>
-            <path d="M6 15h12"></path>
-            <path d="M12 7v10"></path>
-          </svg>
-        </div>
-        <div>
-          <h1>Aurora Tunnel</h1>
-          <p>VLESS + AmneziaWG 2 inside Telegram</p>
-        </div>
-      </div>
-      <button class="theme-btn" data-theme-toggle aria-label="Сменить тему">☾</button>
+  <div class="container">
+    <div class="card">
+      <h1 class="title">Aurora Tunnel</h1>
+      <p class="subtitle">Нажми, чтобы получить новую VLESS‑ссылку.</p>
+
+      <button class="btn" onclick="issueVless()">
+        <span class="icon">⚡</span>
+        <span>Выдать VLESS</span>
+      </button>
+
+      <button class="btn btn-secondary" onclick="openSupport()">
+        <span class="icon">💬</span>
+        <span>Поддержка</span>
+      </button>
+
+      <div id="status" class="status"></div>
     </div>
-
-    <section class="hero">
-      <div class="badge">● MAIN MINI APP</div>
-      <h2>Безопасный доступ через VLESS и AmneziaWG 2</h2>
-      <p>Aurora Tunnel — это название для VPN‑сервиса с упором на тихий, стабильный и быстрый доступ. В этом шаблоне черная тема включена по умолчанию, а интерфейс уже разбит под два сценария выдачи: VLESS для Xray/x-ui и AmneziaWG 2 для приложения AmneziaVPN.</p>
-      <div class="hero-actions">
-        <button class="btn btn-primary" id="mainAction">Получить конфиг</button>
-        <button class="btn btn-secondary" id="supportAction">Поддержка</button>
-      </div>
-      <div class="stripe">DEFAULT DARK • TELEGRAM READY • DUAL PROTOCOL</div>
-    </section>
-
-    <section class="stats" aria-label="Статистика">
-      <article class="card">
-        <h3>Пользователь</h3>
-        <p id="userHint">Данные появятся после запуска внутри Telegram</p>
-        <div class="value" id="userName">Гость</div>
-      </article>
-      <article class="card">
-        <h3>Статус доступа</h3>
-        <p>Тестовый статус для шаблона</p>
-        <div class="value ok" id="statusValue">Активен</div>
-      </article>
-    </section>
-
-    <h3 class="section-title">Протоколы</h3>
-    <section class="protocols">
-      <article class="protocol-card">
-        <div class="protocol-top">
-          <div class="protocol-name"><span class="dot dot-vless"></span>VLESS</div>
-          <div class="protocol-meta">UUID / Xray</div>
-        </div>
-        <ul>
-          <li>Подходит для выдачи подписки, URI и импортов из x-ui/3x-ui.</li>
-          <li>Можно вести пользователя к ссылке подписки, конфигу или кнопке копирования.</li>
-          <li>Хорошо подходит под сценарий “получить ключ и открыть клиент”.</li>
-        </ul>
-      </article>
-      <article class="protocol-card">
-        <div class="protocol-top">
-          <div class="protocol-name"><span class="dot dot-awg"></span>AmneziaWG 2</div>
-          <div class="protocol-meta">UDP / DPI resistant</div>
-        </div>
-        <ul>
-          <li>Подходит для сценария установки и импорта в приложение AmneziaVPN.</li>
-          <li>AmneziaWG 2 маскирует трафик под обычные сетевые протоколы и сложнее детектируется DPI.</li>
-          <li>Порт лучше держать низкий и свободный, например до 9999, как рекомендует документация.</li>
-        </ul>
-      </article>
-    </section>
-
-    <h3 class="section-title">Быстрые действия</h3>
-    <section class="list">
-      <div class="item">
-        <div>
-          <strong>Выдать VLESS</strong>
-          <span>Subscription URL, URI, копирование ссылки, кнопка импорта</span>
-        </div>
-        <button class="ghost" id="vlessAction">Открыть</button>
-      </div>
-      <div class="item">
-        <div>
-          <strong>Выдать AmneziaWG 2</strong>
-          <span>Конфиг, инструкция для AmneziaVPN, экспорт параметров</span>
-        </div>
-        <button class="ghost" id="awgAction">Открыть</button>
-      </div>
-      <div class="item">
-        <div>
-          <strong>Продлить доступ</strong>
-          <span>Кнопка для оплаты, заявки или отправки команды боту</span>
-        </div>
-        <button class="ghost" id="renewAction">Продлить</button>
-      </div>
-    </section>
-
-    <h3 class="section-title">VLESS subscription</h3>
-    <section class="card">
-      <p class="mono" id="subUrl">https://example.com/sub/your-token</p>
-    </section>
-
-    <h3 class="section-title">AmneziaWG 2</h3>
-    <section class="card">
-      <p>Здесь можно показывать статус порта, имя сервера, QR/экспорт или инструкцию по импорту в AmneziaVPN.</p>
-      <div class="value" style="font-size:1.1rem">UDP порт: <span class="mono">585</span></div>
-    </section>
-
-    <div class="footer-note">
-      Название Aurora Tunnel придумано под идею тихого и стабильного канала связи. VLESS в документации Project X описывается как stateless lightweight protocol с UUID‑аутентификацией, а AmneziaWG 2 в документации Amnezia позиционируется как протокол, который может маскировать трафик под обычные сетевые протоколы и поддерживается в актуальных версиях AmneziaVPN. [web:62][web:67][web:61][web:63]
-    </div>
-  </main>
+  </div>
 
   <script>
-    const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-    const root = document.documentElement;
-    const toggle = document.querySelector('[data-theme-toggle]');
-    let currentTheme = 'dark';
+    const tg = window.Telegram.WebApp;
+    tg.ready();
 
-    function setTheme(theme){
-      currentTheme = theme;
-      root.setAttribute('data-theme', theme);
-      toggle.textContent = theme === 'dark' ? '☾' : '☀';
-      toggle.setAttribute('aria-label', theme === 'dark' ? 'Светлая тема' : 'Тёмная тема');
+    const statusEl = document.getElementById("status");
+
+    function setStatus(text) {
+      if (!statusEl) return;
+      statusEl.textContent = text || "";
     }
 
-    setTheme('dark');
-
-    function notify(message){
-      if (tg && tg.showPopup) {
-        tg.showPopup({ title: 'Aurora Tunnel', message, buttons: [{ type: 'ok' }] });
-      } else {
-        alert(message);
+    function issueVless() {
+      try {
+        const payload = { action: "issue_vless" };
+        console.log("Sending to bot:", payload);
+        setStatus("Запрашиваю VLESS у бота...");
+        tg.sendData(JSON.stringify(payload));
+        // Можно закрыть мини‑апп после отправки, если хочешь:
+        // tg.close();
+      } catch (e) {
+        console.error("sendData error", e);
+        setStatus("Ошибка отправки данных в бота");
       }
     }
 
-    function sendAction(action){
-      const payload = JSON.stringify({ action, ts: Date.now() });
-      if (tg && tg.sendData) tg.sendData(payload);
-      else notify('Демо режим: ' + action);
+    function openSupport() {
+      try {
+        const payload = { action: "support" };
+        console.log("Sending support action:", payload);
+        setStatus("Открываю поддержку...");
+        tg.sendData(JSON.stringify(payload));
+      } catch (e) {
+        console.error("sendData error", e);
+        setStatus("Ошибка отправки данных в бота");
+      }
     }
 
-    toggle.addEventListener('click', ()=> setTheme(currentTheme === 'dark' ? 'light' : 'dark'));
-    document.getElementById('mainAction').addEventListener('click', ()=> sendAction('get_config'));
-    document.getElementById('supportAction').addEventListener('click', ()=> sendAction('support'));
-    document.getElementById('vlessAction').addEventListener('click', ()=> sendAction('issue_vless'));
-    document.getElementById('awgAction').addEventListener('click', ()=> sendAction('issue_amneziawg2'));
-    document.getElementById('renewAction').addEventListener('click', ()=> sendAction('renew_access'));
-
-    if (tg) {
-      tg.ready();
-      tg.expand();
-      if (tg.MainButton) {
-        tg.MainButton.setText('Получить VPN');
-        tg.MainButton.show();
-        tg.MainButton.onClick(() => sendAction('main_button_get_vpn'));
-      }
-      const user = tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user : null;
-      if (user) {
-        const fullName = [user.first_name, user.last_name].filter(Boolean).join(' ');
-        document.getElementById('userName').textContent = fullName || user.username || ('ID ' + user.id);
-        document.getElementById('userHint').textContent = user.username ? '@' + user.username : 'Telegram user';
-      }
-      tg.onEvent('themeChanged', function(){
-        if (tg.colorScheme === 'light') setTheme('light');
-      });
-    }
+    console.log("TG WebApp initDataUnsafe:", tg.initDataUnsafe);
   </script>
 </body>
 </html>
