@@ -3,136 +3,302 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Aurora Tunnel mini app</title>
+  <meta name="color-scheme" content="dark light" />
+  <title>Aurora Tunnel</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    body {
+    :root {
+      --bg: #050816;
+      --card: rgba(10, 15, 35, 0.78);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --primary-1: #38bdf8;
+      --primary-2: #a855f7;
+      --danger: #fb7185;
+      --success: #34d399;
+      --shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
+      --radius: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
       margin: 0;
-      padding: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #020617;
-      color: #f9fafb;
+      min-height: 100%;
+      background:
+        radial-gradient(circle at top, rgba(56, 189, 248, 0.20), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(168, 85, 247, 0.20), transparent 24%),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 18px;
     }
-    .wrap {
+
+    .shell {
       width: 100%;
-      max-width: 420px;
-      padding: 16px;
-      box-sizing: border-box;
+      max-width: 430px;
     }
+
     .card {
-      border-radius: 16px;
-      padding: 20px 18px 16px;
-      background: #020617;
-      box-shadow:
-        0 20px 40px rgba(15,23,42,0.9),
-        0 0 0 1px rgba(148,163,184,0.2);
+      position: relative;
+      overflow: hidden;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      padding: 22px;
     }
-    h1 {
-      margin: 0 0 4px;
-      font-size: 20px;
+
+    .glow {
+      position: absolute;
+      inset: auto auto -80px -60px;
+      width: 180px;
+      height: 180px;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.28), transparent 68%);
+      filter: blur(8px);
+      pointer-events: none;
     }
-    p {
-      margin: 0 0 16px;
-      font-size: 13px;
-      color: #9ca3af;
-    }
-    button {
-      width: 100%;
-      border-radius: 999px;
-      border: none;
-      padding: 12px 16px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
+
+    .brand {
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 8px;
-      background: linear-gradient(135deg, #38bdf8, #a855f7);
-      color: #f9fafb;
-      margin-bottom: 8px;
+      gap: 12px;
+      margin-bottom: 18px;
     }
-    .secondary {
-      background: transparent;
-      border: 1px solid rgba(148,163,184,0.5);
-      box-shadow: none;
+
+    .logo {
+      width: 46px;
+      height: 46px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--primary-1), var(--primary-2));
+      box-shadow: 0 10px 24px rgba(168, 85, 247, 0.28);
+      font-size: 22px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.15;
+    }
+
+    .brand p {
+      margin: 2px 0 0;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .panel {
+      display: grid;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .info {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .info .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      margin-top: 5px;
+      background: linear-gradient(135deg, var(--primary-1), var(--primary-2));
+      flex: 0 0 auto;
+    }
+
+    .info strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+
+    .info span {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .actions {
+      display: grid;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .btn {
+      width: 100%;
+      border: 0;
+      outline: none;
+      border-radius: 999px;
+      padding: 14px 16px;
+      font-size: 15px;
+      font-weight: 700;
+      color: white;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: transform .15s ease, opacity .15s ease, box-shadow .15s ease;
+      user-select: none;
+    }
+
+    .btn:active {
+      transform: scale(0.985);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary-1), var(--primary-2));
+      box-shadow: 0 10px 24px rgba(56, 189, 248, 0.22);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.09);
       color: #e5e7eb;
     }
-    #status {
-      margin-top: 6px;
+
+    .footer {
+      margin-top: 14px;
       font-size: 12px;
-      color: #9ca3af;
-      min-height: 16px;
+      color: var(--muted);
       text-align: center;
+      min-height: 18px;
+    }
+
+    .status-ok { color: var(--success); }
+    .status-warn { color: #fbbf24; }
+    .status-bad { color: var(--danger); }
+
+    .hint {
+      margin-top: 14px;
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    @media (max-width: 380px) {
+      .card { padding: 18px; }
+      .brand h1 { font-size: 18px; }
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
+  <div class="shell">
     <div class="card">
-      <h1>Aurora Tunnel</h1>
-      <p>Нажми кнопку, чтобы запросить у бота новую VLESS‑ссылку.</p>
+      <div class="glow"></div>
 
-      <button onclick="issueVless()">
-        <span>⚡</span>
-        <span>Выдать VLESS</span>
-      </button>
+      <div class="brand">
+        <div class="logo">⚡</div>
+        <div>
+          <h1>Aurora Tunnel</h1>
+          <p>Подписка для Happ и других клиентов</p>
+        </div>
+      </div>
 
-      <button class="secondary" onclick="openSupport()">
-        <span>💬</span>
-        <span>Поддержка</span>
-      </button>
+      <div class="panel">
+        <div class="info">
+          <div class="dot"></div>
+          <div>
+            <strong>Один пользователь — один ключ</strong>
+            <span>Если подписка уже есть, бот покажет её. При создании нового ключа старый можно удалить по подтверждению.</span>
+          </div>
+        </div>
 
-      <div id="status"></div>
+        <div class="info">
+          <div class="dot"></div>
+          <div>
+            <strong>Как это работает</strong>
+            <span>Нажми кнопку ниже — mini app отправит действие в бот через Telegram.WebApp.sendData.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" onclick="issueVless()">
+          <span>⚡</span>
+          <span>Выдать подписку</span>
+        </button>
+
+        <button class="btn btn-secondary" onclick="resetKey()">
+          <span>🗑️</span>
+          <span>Сменить ключ</span>
+        </button>
+
+        <button class="btn btn-secondary" onclick="openSupport()">
+          <span>💬</span>
+          <span>Поддержка</span>
+        </button>
+      </div>
+
+      <div id="status" class="footer">Mini app готов.</div>
+      <div class="hint">Открой этот экран внутри Telegram — тогда данные дойдут до бота.</div>
     </div>
   </div>
 
   <script>
     const tg = window.Telegram.WebApp;
     tg.ready();
+    tg.expand();
 
     const statusEl = document.getElementById("status");
 
-    function setStatus(text) {
-      if (statusEl) {
-        statusEl.textContent = text || "";
+    function setStatus(text, type = "") {
+      if (!statusEl) return;
+      statusEl.className = "footer" + (type ? ` status-${type}` : "");
+      statusEl.textContent = text || "";
+    }
+
+    function sendPayload(payload, okText) {
+      try {
+        console.log("Sending payload:", payload);
+        setStatus("Отправляю запрос боту...", "warn");
+        tg.sendData(JSON.stringify(payload));
+        setStatus(okText || "Запрос отправлен", "ok");
+      } catch (e) {
+        console.error("sendData error", e);
+        setStatus("Ошибка отправки данных", "bad");
+        alert("Ошибка sendData: " + e);
       }
     }
 
-    console.log("tg.initDataUnsafe:", tg.initDataUnsafe);
-    setStatus("Mini app загружен");
-
     function issueVless() {
-      try {
-        const payload = { action: "issue_vless" };
-        console.log("Sending to bot:", payload);
-        setStatus("Отправляю запрос боту...");
-        alert("Жму sendData issue_vless"); // временно для проверки
-        tg.sendData(JSON.stringify(payload));
-      } catch (e) {
-        console.error("sendData error", e);
-        setStatus("Ошибка sendData: " + e);
-        alert("Ошибка sendData: " + e);
-      }
+      sendPayload({ action: "issue_vless" }, "Запрос на подписку отправлен");
+    }
+
+    function resetKey() {
+      const sure = confirm("Удалить старый ключ и создать новый?");
+      if (!sure) return;
+      sendPayload({ action: "confirm_new_key" }, "Запрос на смену ключа отправлен");
     }
 
     function openSupport() {
-      try {
-        const payload = { action: "support" };
-        console.log("Sending to bot:", payload);
-        setStatus("Открываю поддержку...");
-        alert("Жму sendData support"); // временно для проверки
-        tg.sendData(JSON.stringify(payload));
-      } catch (e) {
-        console.error("sendData error", e);
-        setStatus("Ошибка sendData: " + e);
-        alert("Ошибка sendData: " + e);
-      }
+      sendPayload({ action: "support" }, "Запрос поддержки отправлен");
     }
+
+    tg.onEvent("themeChanged", () => {
+      document.documentElement.style.setProperty("--tg-bg", tg.themeParams.bg_color || "#050816");
+    });
   </script>
 </body>
 </html>
