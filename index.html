@@ -124,6 +124,24 @@
             padding: 12px;
             border-radius: 12px;
         }
+        .test-box {
+            font-size: 12px;
+            color: #e5e7eb;
+            background: #111827;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 10px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .test-error {
+            background: #7f1d1d;
+            color: #fee2e2;
+        }
+        .test-ok {
+            color: #e5e7eb;
+        }
     </style>
 </head>
 <body>
@@ -158,6 +176,15 @@
         const telegramIdEl = document.getElementById('telegram-id');
         const refreshBtn = document.getElementById('refresh-btn');
         const debugBox = document.getElementById('debug-box');
+
+        function escapeHtml(text) {
+            return String(text)
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#039;');
+        }
 
         function setDebug(lines) {
             debugBox.textContent = lines.join('\n');
@@ -201,15 +228,6 @@
             } catch {
                 throw new Error('Delete API returned non-JSON: ' + text.slice(0, 200));
             }
-        }
-
-        function escapeHtml(text) {
-            return String(text)
-                .replaceAll('&', '&amp;')
-                .replaceAll('<', '&lt;')
-                .replaceAll('>', '&gt;')
-                .replaceAll('"', '&quot;')
-                .replaceAll("'", '&#039;');
         }
 
         async function loadSubs() {
@@ -326,6 +344,28 @@
                 alert('Не удалось удалить подписку');
             }
         }
+
+        // Тестовый вызов API и вывод результата на экран
+        fetch(`${API_BASE}/api/subscriptions?user_id=871433332`)
+            .then(r => r.text())
+            .then(text => {
+                const box = document.createElement('div');
+                box.className = 'test-box test-ok';
+                box.innerHTML = `
+                    <div style="font-size:12px;color:#9ca3af;margin-bottom:6px;">Тестовый ответ API:</div>
+                    <pre style="white-space:pre-wrap;font-size:12px;">${escapeHtml(text)}</pre>
+                `;
+                document.body.appendChild(box);
+            })
+            .catch(err => {
+                const box = document.createElement('div');
+                box.className = 'test-box test-error';
+                box.innerHTML = `
+                    <div style="font-size:12px;margin-bottom:6px;">Ошибка fetch:</div>
+                    <pre style="white-space:pre-wrap;font-size:12px;">${escapeHtml(err.message || String(err))}</pre>
+                `;
+                document.body.appendChild(box);
+            });
 
         refreshBtn.addEventListener('click', loadSubs);
         if (tg && tg.ready) tg.ready();
