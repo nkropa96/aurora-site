@@ -3,17 +3,14 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Aurora Cabinet</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <title>Aurora — Инструкция по подключению</title>
     <style>
         :root {
             --bg: #0f1219;
             --card: #171b26;
-            --card2: #1f2433;
             --text: #e6e8eb;
             --muted: #8b92a1;
             --blue: #3b82f6;
-            --red: #ef4444;
             --green: #22c55e;
             --border: rgba(255,255,255,0.08);
         }
@@ -23,159 +20,186 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
             background: var(--bg);
             color: var(--text);
+            line-height: 1.5;
         }
         .wrap {
-            max-width: 900px;
+            max-width: 700px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 24px 16px;
         }
         .card {
             background: var(--card);
             border: 1px solid var(--border);
             border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 14px;
+            padding: 20px;
+            margin-bottom: 16px;
             box-shadow: 0 8px 24px rgba(0,0,0,.25);
-        }
-        .top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
         }
         h1 {
             margin: 0 0 12px;
-            font-size: 24px;
+            font-size: 26px;
+            font-weight: 700;
         }
-        .label {
-            color: var(--muted);
-            font-size: 12px;
-            margin-bottom: 4px;
+        h2 {
+            margin: 0 0 10px;
+            font-size: 18px;
+            font-weight: 600;
         }
-        .value {
-            font-size: 14px;
-            word-break: break-word;
-        }
-        .btn {
-            border: 0;
-            background: var(--blue);
-            color: white;
-            border-radius: 10px;
-            padding: 10px 14px;
-            cursor: pointer;
-            font-size: 14px;
-            text-decoration: none;
-            display: inline-block;
-        }
-        .btn-danger { background: var(--red); }
-        .btn-secondary { background: #334155; }
-        .actions { display: flex; gap: 8px; flex-wrap: wrap; }
-        .subs { display: grid; gap: 12px; }
-        .sub {
-            background: var(--card2);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 14px;
-        }
-        .sub-head {
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-            gap: 12px;
-            margin-bottom: 10px;
-            flex-wrap: wrap;
-        }
-        .sub-title { font-size: 16px; font-weight: 600; }
-        .sub-grid { display: grid; gap: 8px; }
-        .status-ok { color: var(--green); font-weight: 600; }
-        .status-bad { color: var(--red); font-weight: 600; }
-        .notice {
-            background: #111827;
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 18px;
-        }
-        .notice h2 { margin: 0 0 10px; font-size: 20px; }
-        .notice p {
+        p {
             margin: 8px 0;
             color: var(--muted);
-            line-height: 1.5;
         }
-        .link {
+        .step {
+            margin: 12px 0 16px;
+            padding-left: 12px;
+            border-left: 3px solid var(--blue);
+        }
+        .step-title {
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+        .code {
+            background: #0b1020;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            word-break: break-all;
             color: #93c5fd;
-            word-break: break-word;
+        }
+        .input-wrap {
+            margin: 12px 0;
+        }
+        label {
+            display: block;
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: #111827;
+            color: var(--text);
+            font-size: 14px;
+        }
+        input[type="text"]::placeholder {
+            color: var(--muted);
+        }
+        .sub-box {
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 10px;
+            background: #111827;
+            border: 1px solid var(--border);
+        }
+        .sub-label {
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+        .sub-value {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 13px;
+            color: #34d399;
+            word-break: break-all;
+        }
+        .btn {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 16px;
+            border-radius: 10px;
+            background: var(--blue);
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            border: 0;
+            cursor: pointer;
         }
         .small {
             font-size: 12px;
             color: var(--muted);
-        }
-        .empty {
-            padding: 16px;
-            color: var(--muted);
-        }
-        .debug {
-            font-size: 12px;
-            color: #cbd5e1;
-            white-space: pre-wrap;
-            word-break: break-word;
-            background: #0b1020;
-            border: 1px solid var(--border);
-            padding: 12px;
-            border-radius: 12px;
-        }
-        .test-box {
-            font-size: 12px;
-            color: #e5e7eb;
-            background: #111827;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 10px;
-            margin-top: 10px;
-            white-space: pre-wrap;
-            word-break: break-word;
-        }
-        .test-error {
-            background: #7f1d1d;
-            color: #fee2e2;
-        }
-        .test-ok {
-            color: #e5e7eb;
         }
     </style>
 </head>
 <body>
     <div class="wrap">
         <div class="card">
-            <h1>🪐 Aurora Cabinet</h1>
-            <div class="top">
-                <div>
-                    <div class="label">Telegram ID</div>
-                    <div class="value" id="telegram-id">загрузка...</div>
-                </div>
-                <div class="actions">
-                    <button class="btn btn-secondary" id="refresh-btn">Обновить</button>
-                </div>
+            <h1>🪐 Aurora — Инструкция</h1>
+            <p>Твой Telegram-бот создаёт VLESS-подписки. Ниже — как ими пользоваться.</p>
+            <p class="small">Управление подписками (создание/удаление) — только через бота.</p>
+        </div>
+
+        <div class="card">
+            <h2>1. Как получить подписку</h2>
+            <div class="step">
+                <div class="step-title">Шаг 1</div>
+                <p>Открой бота в Telegram:</p>
+                <div class="code"><a href="https://t.me/AURORA_TUNNEL_BOT" style="color:#93c5fd;text-decoration:none;">https://t.me/AURORA_TUNNEL_BOT</a></div>
+            </div>
+            <div class="step">
+                <div class="step-title">Шаг 2</div>
+                <p>Нажми <strong>🔄 Создать VLESS</strong>.</p>
+                <p>Бот пришлёт:</p>
+                <ul>
+                    <li>ссылку подписки</li>
+                    <li>QR-код</li>
+                    <li>email и статус</li>
+                </ul>
+            </div>
+            <div class="step">
+                <div class="step-title">Шаг 3</div>
+                <p>Скопируй ссылку подписки из сообщения бота.</p>
             </div>
         </div>
 
-        <div id="content"></div>
+        <div class="card">
+            <h2>2. Как добавить подписку в приложение</h2>
+            <p>Открой своё VLESS-приложение (например, v2rayNG, NapsternetV,山市 и т.п.):</p>
+            <div class="step">
+                <div class="step-title">Шаг 1</div>
+                <p>Нажми <strong>«Добавить подписку»</strong> / <strong>«Add Subscription»</strong>.</p>
+            </div>
+            <div class="step">
+                <div class="step-title">Шаг 2</div>
+                <p>Вставь ссылку в поле ниже и нажми <strong>«Проверить»</strong>:</p>
+                <div class="input-wrap">
+                    <label>Твоя ссылка подписки:</label>
+                    <input type="text" id="sub-input" placeholder="https://89.125.188.229:2096/qwss/..." />
+                </div>
+                <button class="btn" id="check-btn">Проверить ссылку</button>
+            </div>
+            <div id="sub-box" class="sub-box" style="display:none;">
+                <div class="sub-label">Твоя подписка:</div>
+                <div class="sub-value" id="sub-output"></div>
+            </div>
+            <p class="small">После проверки скопируй ссылку и вставь в приложение как подписку.</p>
+        </div>
 
         <div class="card">
-            <div class="label">Отладка</div>
-            <div class="debug" id="debug-box">...</div>
+            <h2>3. Управление подписками</h2>
+            <p>• Создать новую: нажми <strong>🔄 Создать VLESS</strong> в боте.<br />
+            • Посмотреть свои: нажми <strong>🔐 Мои подписки</strong>.<br />
+            • Удалить: выбери подписку и нажми <strong>🗑 Удалить</strong>.</p>
+            <p class="small">Всё управление — только внутри Telegram-бота.</p>
+
+            <div style="margin-top:12px;">
+                <a class="btn" href="https://t.me/AURORA_TUNNEL_BOT">Открыть бота</a>
+            </div>
         </div>
     </div>
 
     <script>
-        const API_BASE = 'https://45f9-89-125-188-229.ngrok-free.app';
-        const BOT_LINK = 'https://t.me/AURORA_TUNNEL_BOT';
-
-        const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-        const content = document.getElementById('content');
-        const telegramIdEl = document.getElementById('telegram-id');
-        const refreshBtn = document.getElementById('refresh-btn');
-        const debugBox = document.getElementById('debug-box');
+        const input = document.getElementById('sub-input');
+        const checkBtn = document.getElementById('check-btn');
+        const subBox = document.getElementById('sub-box');
+        const subOutput = document.getElementById('sub-output');
 
         function escapeHtml(text) {
             return String(text)
@@ -186,190 +210,15 @@
                 .replaceAll("'", '&#039;');
         }
 
-        function setDebug(lines) {
-            debugBox.textContent = lines.join('\n');
-        }
-
-        function renderBrowserStub(reason) {
-            telegramIdEl.textContent = 'browser';
-            content.innerHTML = `
-                <div class="notice">
-                    <h2>Открой в Telegram</h2>
-                    <p>Этот кабинет работает только внутри Telegram WebApp.</p>
-                    <p>Открой бота и нажми кнопку “Открыть кабинет”.</p>
-                    <div class="actions" style="margin-top:14px;">
-                        <a class="btn" href="${BOT_LINK}" target="_blank" rel="noopener noreferrer">Открыть бота</a>
-                    </div>
-                    <p class="small">Причина: ${reason}</p>
-                </div>
-            `;
-            refreshBtn.disabled = true;
-        }
-
-        async function apiGetSubscriptions(userId) {
-            const res = await fetch(`${API_BASE}/api/subscriptions?user_id=${encodeURIComponent(userId)}`);
-            const text = await res.text();
-            try {
-                return JSON.parse(text);
-            } catch {
-                throw new Error('API returned non-JSON: ' + text.slice(0, 200));
-            }
-        }
-
-        async function apiDeleteSubscription(userId, id) {
-            const res = await fetch(`${API_BASE}/api/delete-subscription`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ user_id: userId, id })
-            });
-            const text = await res.text();
-            try {
-                return JSON.parse(text);
-            } catch {
-                throw new Error('Delete API returned non-JSON: ' + text.slice(0, 200));
-            }
-        }
-
-        async function loadSubs() {
-            if (!tg) {
-                setDebug(['Telegram.WebApp: not found', 'Page opened outside Telegram']);
-                renderBrowserStub('Telegram.WebApp not found');
+        checkBtn.addEventListener('click', () => {
+            const val = input.value.trim();
+            if (!val) {
+                alert('Вставь ссылку подписки');
                 return;
             }
-
-            const user = tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user : null;
-            const userId = user ? user.id : null;
-            const initData = tg.initData || '';
-
-            setDebug([
-                'Telegram.WebApp: found',
-                'initData length: ' + initData.length,
-                'userId: ' + (userId || 'EMPTY'),
-                'user name: ' + (user ? (user.first_name || '') : 'EMPTY')
-            ]);
-
-            if (!userId) {
-                telegramIdEl.textContent = 'EMPTY';
-                content.innerHTML = `
-                    <div class="notice">
-                        <h2>Нет данных пользователя</h2>
-                        <p>Telegram WebApp открыл страницу, но user.id не передан.</p>
-                        <p>Открой кабинет ещё раз через кнопку WebApp в боте.</p>
-                        <div class="actions" style="margin-top:14px;">
-                            <a class="btn" href="${BOT_LINK}" target="_blank" rel="noopener noreferrer">Перейти в бота</a>
-                        </div>
-                    </div>
-                `;
-                return;
-            }
-
-            telegramIdEl.textContent = userId;
-            content.innerHTML = `<div class="card"><div class="muted">Загрузка подписок...</div></div>`;
-
-            try {
-                const subs = await apiGetSubscriptions(userId);
-
-                if (!Array.isArray(subs) || subs.length === 0) {
-                    content.innerHTML = `<div class="card"><div class="empty">У вас пока нет подписок.</div></div>`;
-                    return;
-                }
-
-                content.innerHTML = `
-                    <div class="card">
-                        <div class="top">
-                            <div>
-                                <div class="label">Подписок</div>
-                                <div class="value">${subs.length}</div>
-                            </div>
-                            <div class="small">Данные берутся из SQLite</div>
-                        </div>
-                    </div>
-                    <div class="subs">
-                        ${subs.map(sub => `
-                            <div class="sub">
-                                <div class="sub-head">
-                                    <div>
-                                        <div class="sub-title">VLESS • ${escapeHtml(sub.country || '—')}</div>
-                                        <div class="small">ID: ${sub.id}</div>
-                                    </div>
-                                    <div class="${sub.status === 'active' ? 'status-ok' : 'status-bad'}">
-                                        ${escapeHtml(sub.status || 'unknown')}
-                                    </div>
-                                </div>
-
-                                <div class="sub-grid">
-                                    <div>
-                                        <div class="label">Email</div>
-                                        <div class="value">${escapeHtml(sub.email || '')}</div>
-                                    </div>
-                                    <div>
-                                        <div class="label">Срок</div>
-                                        <div class="value">${escapeHtml(sub.expire_days || '')} дней</div>
-                                    </div>
-                                    <div>
-                                        <div class="label">Создано</div>
-                                        <div class="value">${escapeHtml(sub.created_at || '')}</div>
-                                    </div>
-                                    <div>
-                                        <div class="label">Ссылка подписки</div>
-                                        <div class="value link">${escapeHtml(sub.subscription_url || '')}</div>
-                                    </div>
-                                </div>
-
-                                <div class="actions" style="margin-top:12px;">
-                                    <button class="btn btn-danger" onclick="deleteSub(${sub.id})">Удалить</button>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-            } catch (e) {
-                setDebug(['Telegram.WebApp: found', 'userId: ' + userId, 'API error: ' + e.message]);
-                content.innerHTML = `
-                    <div class="card">
-                        <div class="status-bad">Не удалось загрузить подписки.</div>
-                        <div class="small" style="margin-top:8px;">Проверь API и доступность сервера.</div>
-                    </div>
-                `;
-            }
-        }
-
-        async function deleteSub(id) {
-            const userId = tg?.initDataUnsafe?.user?.id;
-            if (!userId) return;
-            try {
-                await apiDeleteSubscription(userId, id);
-                await loadSubs();
-            } catch (e) {
-                alert('Не удалось удалить подписку');
-            }
-        }
-
-        // Тестовый вызов API и вывод результата на экран
-        fetch(`${API_BASE}/api/subscriptions?user_id=871433332`)
-            .then(r => r.text())
-            .then(text => {
-                const box = document.createElement('div');
-                box.className = 'test-box test-ok';
-                box.innerHTML = `
-                    <div style="font-size:12px;color:#9ca3af;margin-bottom:6px;">Тестовый ответ API:</div>
-                    <pre style="white-space:pre-wrap;font-size:12px;">${escapeHtml(text)}</pre>
-                `;
-                document.body.appendChild(box);
-            })
-            .catch(err => {
-                const box = document.createElement('div');
-                box.className = 'test-box test-error';
-                box.innerHTML = `
-                    <div style="font-size:12px;margin-bottom:6px;">Ошибка fetch:</div>
-                    <pre style="white-space:pre-wrap;font-size:12px;">${escapeHtml(err.message || String(err))}</pre>
-                `;
-                document.body.appendChild(box);
-            });
-
-        refreshBtn.addEventListener('click', loadSubs);
-        if (tg && tg.ready) tg.ready();
-        loadSubs();
+            subOutput.textContent = val;
+            subBox.style.display = 'block';
+        });
     </script>
 </body>
 </html>
